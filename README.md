@@ -1,4 +1,6 @@
 # MSXVI Strategy
+![](docs/architecture.svg)
+
 ## About
 This repository contains the work of the Midnight Sun ~~Strategy team~~, including code for setting up and interacting with a simulator and optimization algorithms.
 
@@ -27,7 +29,5 @@ We address this question by leveraging the route, weather, and solar irradiance 
 Still deciding how this will be implemented... Will either be done with simulink or custom python models (leaning towards this right now)
 
 ## Optimizer
-Intended to optimize velocity based on the simulation model. Planning on using Scipy for this. What about Z3 prover? Well from my research it seems to be more suited towards answering 
+This module is intended to optimize velocity using the simulation model, and we plan to use SciPy for the optimization. As for the Z3 prover, it appears to be better suited for problems such as: “Given logical constraints x, y, and z, what values can they take?” In our case, we aim to minimize SOC as a function of the chosen speed, so the Z3 prover would not be particularly useful. 
 
-
-![](docs/architecture.svg)
