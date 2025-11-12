@@ -6,11 +6,12 @@
 #           However, would be cool to have lap by lap coloured map gradients for best speeds for FSGP
 #  @ingroup Strategy_XVI
 
+#! Not tested 
+
 from __future__ import annotations
 from typing import List, Dict, Tuple, Optional
 import json
 import numpy as np
-import folium
 import gpxpy, gpxpy.gpx
 from enum import IntEnum 
 
