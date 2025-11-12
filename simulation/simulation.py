@@ -1,5 +1,5 @@
 ## @file    simulation.py
-#  @date    2025-11-09
+#  @date    2025-11-07
 #  @author  Midnight Sun Team #24 - MSXVI
 #  @brief   Simulation for MSXVI
 #  @ingroup Strategy_XVI
@@ -39,22 +39,51 @@ class SimResult(NamedTuple):
 # ------------------------------------------------------------
 # Power calculations (Check confluence page for more details)
 # ------------------------------------------------------------
+def rolling_power(v: np.ndarray, M: float, g: float, C_RR: float) -> np.ndarray:
+    """
+    @brief Calculates rolling resistance power loss
+    @param v Velocity (m/s)
+    @param M Vehicle mass (kg)
+    @param g Gravitational acceleration (m/s²)
+    @param C_RR Rolling resistance coefficient
+    @return Power loss due to rolling resistance (W)
+    """
+    return (M * g * C_RR) * v
 
-# Calculates rolling power of car
-def rolling_power(v, M, gravity_const, C_RR):
-  return (M * gravity_const * C_RR) * v
 
-# Calculates drag power
-def drag_power(v, rho, Cd, A):
-  return 0.5 * rho * Cd * A * v**3
+def drag_power(v: np.ndarray, rho: float, Cd: float, A: float) -> np.ndarray:
+    """
+    @brief Calculates aerodynamic drag power loss
+    @param v Velocity (m/s)
+    @param rho Air density (kg/m³)
+    @param Cd Drag coefficient
+    @param A Frontal area (m²)
+    @return Power loss due to aerodynamic drag (W)
+    """
+    return 0.5 * rho * Cd * A * v**3
 
-# Calculates grade power
-def grade_power(v, theta_rad, M, g):
-  return M * g * np.sin(theta_rad) * v
 
-# Calculates solar pow  er
-def solar_power(G_wm2, A_solar, panel_eff):
-  return A_solar * panel_eff * G_wm2
+def grade_power(v: np.ndarray, theta_rad: np.ndarray, M: float, g: float) -> np.ndarray:
+    """
+    @brief Calculates gravitational power (positive uphill, negative downhill)
+    @param v Velocity (m/s)
+    @param theta_rad Road grade angle (radians)
+    @param M Vehicle mass (kg)
+    @param g Gravitational acceleration (m/s²)
+    @return Power required to overcome grade (W), negative when descending
+    """
+    return M * g * np.sin(theta_rad) * v
+
+
+def solar_power(G_wm2: np.ndarray, A_solar: float, panel_eff: float) -> np.ndarray:
+    """
+    @brief Calculates solar power generation
+    @param G_wm2 Global horizontal irradiance (W/m²)
+    @param A_solar Solar panel area (m²)
+    @param panel_eff Panel efficiency (fraction)
+    @return Electrical power generated (W)
+    """
+    return A_solar * panel_eff * G_wm2
 
 # ----------------------------
 # Simulation
@@ -149,8 +178,14 @@ def simulate(
 # ----------------------------
 # Helpers
 # ----------------------------
-# Euler-integrate distance from a speed profile 
 def distance_trajectory(v: np.ndarray, dt: float, d0: float) -> np.ndarray:
+  """
+  @brief Euler-integrate distance from a speed profile
+  @param v Velocity profile (m/s)
+  @param dt Timestep (seconds)
+  @param d0 Initial distance (meters)
+  @return Cumulative distance array (meters)
+  """
   v = np.asarray(v, dtype=float)
   d = np.empty_like(v)
   d[0] = d0
@@ -158,6 +193,10 @@ def distance_trajectory(v: np.ndarray, dt: float, d0: float) -> np.ndarray:
     d[1:] = d0 + np.cumsum(v[:-1] * dt)
   return d
 
-# Convert Joules to Watt-hours 
 def wh_from_joules(E_J: np.ndarray | float) -> np.ndarray | float:
+  """
+  @brief Convert energy from Joules to Watt-hours
+  @param E_J Energy in Joules
+  @return Energy in Watt-hours
+  """
   return np.asarray(E_J) / 3600.0

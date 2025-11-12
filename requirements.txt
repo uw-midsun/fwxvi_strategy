@@ -1,15 +1,4 @@
-# ---- runtime ----
-numpy>=1.26
-pandas>=2.2
-scipy>=1.13
-matplotlib>=3.9
-pyyaml>=6.0.1
+numpy
+scipy
+matplotlib
 
-# ---- (optional) speedups / alt optimizers ----
-numba>=0.60         # JIT for simulation hot loop (optional)
-cma>=3.3.0          # CMA-ES optimizer (optional)
-
-# ---- dev / CI ----
-pytest>=8.2
-mypy>=1.11
-ruff>=0.6

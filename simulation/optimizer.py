@@ -37,11 +37,19 @@ def objective(vs: np.ndarray,
     @return Negative distance (so minimizing → maximize distance)
     """
     res = simulate(vs, dt, d0, theta_deg, ghi, params)
-    # penalize running out of battery early
-    penalty = 0.0
+    score = -res.final_distance_m
+    
+    # Penalty for running out of battery
     if res.final_soc_J <= 0:
-        penalty = 1e6
-    return -res.final_distance_m + penalty
+        score += 1e8 
+    
+    #? Experimenting: What if we wanted 10% battery left at the end of the stint
+    min_reserve = 0.1 * params.bat_max_energy
+    if res.final_soc_J < min_reserve:
+        deficit = min_reserve - res.final_soc_J
+        score += deficit * 100
+    
+    return score
 
 
 def optimize_velocity(cfg: OptimizeConfig,
@@ -56,7 +64,7 @@ def optimize_velocity(cfg: OptimizeConfig,
     @return Best velocity array and objective value.
     """
     N = int(cfg.horizon / cfg.dt)
-    vs0 = np.full(N, (cfg.vmin + cfg.vmax) / 2.0)
+    vs0 = np.full(N, (cfg.vmin + cfg.vmax) / 2.0) 
 
     bounds = [(cfg.vmin, cfg.vmax)] * N
 
@@ -68,7 +76,9 @@ def optimize_velocity(cfg: OptimizeConfig,
         bounds=bounds if cfg.method != "Nelder-Mead" else None,
         options={"maxiter": cfg.max_iter, "disp": True},
     )
-
+    if not result.success:
+        print(f"Warning: Optimization did not converge. Message: {result.message}")
+        
     best_vs = result.x
     best_obj = result.fun
     return best_vs, best_obj
