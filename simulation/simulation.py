@@ -37,16 +37,11 @@ class SimResult(NamedTuple):
   traces: Dict[str, np.ndarray]  
 
 # ------------------------------------------------------------
-# Power calculations (Check confluence page for more details)
+# Power calculations 
 # ------------------------------------------------------------
 def rolling_power(v: np.ndarray, M: float, g: float, C_RR: float) -> np.ndarray:
     """
     @brief Calculates rolling resistance power loss
-    @param v Velocity (m/s)
-    @param M Vehicle mass (kg)
-    @param g Gravitational acceleration (m/s²)
-    @param C_RR Rolling resistance coefficient
-    @return Power loss due to rolling resistance (W)
     """
     return (M * g * C_RR) * v
 
@@ -54,11 +49,6 @@ def rolling_power(v: np.ndarray, M: float, g: float, C_RR: float) -> np.ndarray:
 def drag_power(v: np.ndarray, rho: float, Cd: float, A: float) -> np.ndarray:
     """
     @brief Calculates aerodynamic drag power loss
-    @param v Velocity (m/s)
-    @param rho Air density (kg/m³)
-    @param Cd Drag coefficient
-    @param A Frontal area (m²)
-    @return Power loss due to aerodynamic drag (W)
     """
     return 0.5 * rho * Cd * A * v**3
 
@@ -66,11 +56,6 @@ def drag_power(v: np.ndarray, rho: float, Cd: float, A: float) -> np.ndarray:
 def grade_power(v: np.ndarray, theta_rad: np.ndarray, M: float, g: float) -> np.ndarray:
     """
     @brief Calculates gravitational power (positive uphill, negative downhill)
-    @param v Velocity (m/s)
-    @param theta_rad Road grade angle (radians)
-    @param M Vehicle mass (kg)
-    @param g Gravitational acceleration (m/s²)
-    @return Power required to overcome grade (W), negative when descending
     """
     return M * g * np.sin(theta_rad) * v
 
@@ -78,10 +63,6 @@ def grade_power(v: np.ndarray, theta_rad: np.ndarray, M: float, g: float) -> np.
 def solar_power(G_wm2: np.ndarray, A_solar: float, panel_eff: float) -> np.ndarray:
     """
     @brief Calculates solar power generation
-    @param G_wm2 Global horizontal irradiance (W/m²)
-    @param A_solar Solar panel area (m²)
-    @param panel_eff Panel efficiency (fraction)
-    @return Electrical power generated (W)
     """
     return A_solar * panel_eff * G_wm2
 
@@ -131,7 +112,7 @@ def simulate(
   P_drag_drive = P_drag / max(p.drive_eff, 1e-9)
 
   # Net battery power draw 
-  # (+ Means drawing from battery)
+  # (- Means drawing from battery)
   # (Losses (positive) minus solar)
   P_net = (P_rr_drive + P_drag_drive + P_grade_loss_pos) - P_solar 
 
@@ -180,7 +161,7 @@ def simulate(
 # ----------------------------
 def distance_trajectory(v: np.ndarray, dt: float, d0: float) -> np.ndarray:
   """
-  @brief Euler-integrate distance from a speed profile
+  @brief Integrate distance from a speed profile
   @param v Velocity profile (m/s)
   @param dt Timestep (seconds)
   @param d0 Initial distance (meters)
