@@ -24,7 +24,7 @@ class VehicleParams:
   bat_max_energy: float = 40 * 3.63 * 36 * 3600     # battery energy capacity, Joules
   air_density: float = 1.293                        # air density
   gravity_const: float = 9.81                       # gravity
-  # regen_eff: float = 0.0                            # TODO
+  # regen_eff: float = 0.0                            # TODO Find out
   drive_eff: float = 0.94                           # drivetrain efficiency on traction losses in the set [0, 1] 
 
 

@@ -17,17 +17,19 @@ class OptimizeConfig:
     @brief A configuration dataclass for the optimizer
     """
     dt: float = 10.0            # Time step (s)
-    horizon: int = 600          # How many minutes we want to simulate?(s)
+    horizon: int = 600          # How many seconds we want to simulate (s)
     d0: float = 0.0             # Starting distance (m)
     vmin: float = 10.0          # Minimum allowed speed (m/s)
     vmax: float = 20.0          # Maximum allowed speed (m/s)
-    method: str = "Nelder-Mead" # Optimization method from scipy #TODO Experiment with different optimization methods
+    method: str = "Powell"      # Optimization method from scipy #TODO Experiment with different optimization methods
     max_iter: int = 2000        # Maximum itterations (regardless of if we reach convergence or not)
+    energy_penalty: float = 0.0 # Energy penalty value (More so for experimentation)
 
-def objective(vs: np.ndarray, 
+def objective(vs: np.ndarray,
               dt: float, d0: float,
               theta_deg: np.ndarray, ghi: np.ndarray,
-              params: VehicleParams) -> float:
+              params: VehicleParams,
+              cfg: OptimizeConfig) -> float:
     """
     @brief  Objective for SciPy minimize
     @param  vs the speed profile (m/s)
@@ -48,6 +50,10 @@ def objective(vs: np.ndarray,
     if res.final_soc_J < min_reserve:
         deficit = min_reserve - res.final_soc_J
         score += deficit * 100
+
+    if getattr(cfg, "energy_penalty", 0.0) > 0.0:
+        energy_used_J = max(0.0, params.bat_max_energy - res.final_soc_J)
+        score += cfg.energy_penalty * (energy_used_J / 1e6)
     
     return score
 
@@ -68,17 +74,18 @@ def optimize_velocity(cfg: OptimizeConfig,
 
     bounds = [(cfg.vmin, cfg.vmax)] * N
 
+    # Pass cfg through to the objective so it can access tunable weights.
     result = minimize(
         objective,
         vs0,
-        args=(cfg.dt, cfg.d0, theta_deg, ghi, params),
+        args=(cfg.dt, cfg.d0, theta_deg, ghi, params, cfg),
         method=cfg.method,
         bounds=bounds if cfg.method != "Nelder-Mead" else None,
         options={"maxiter": cfg.max_iter, "disp": True},
     )
     if not result.success:
         print(f"Warning: Optimization did not converge. Message: {result.message}")
-        
+    
     best_vs = result.x
     best_obj = result.fun
     return best_vs, best_obj

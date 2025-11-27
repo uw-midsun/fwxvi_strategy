@@ -31,3 +31,13 @@ Still deciding how this will be implemented... Will either be done with simulink
 ## Optimizer
 This module is intended to optimize velocity using the simulation model, and we plan to use SciPy for the optimization. As for the Z3 prover, it appears to be better suited for problems such as: “Given logical constraints x, y, and z, what values can they take?” In our case, we aim to minimize SOC as a function of the chosen speed, so the Z3 prover would not be particularly useful. 
 
+# How to run it? 
+```
+cd simulation
+pip install -r requirements.txt
+python main.py
+````
+Afterwards, you should be able to configure the simulation via terminal. 
+
+# Notes 
+So... I don't think we have access to Solcast anymore 💀 We could make the whole terminal thing into a GUI! Still have to test if the map visualization works or not. Also need to set up plots. 
