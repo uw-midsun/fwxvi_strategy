@@ -6,7 +6,8 @@
 #           However, would be cool to have lap by lap coloured map gradients for best speeds for FSGP
 #  @ingroup Strategy_XVI
 
-#! Not tested 
+#! Not tested
+# TODO  
 
 from __future__ import annotations
 from typing import List, Dict, Tuple, Optional
@@ -29,11 +30,13 @@ class AscTrack(IntEnum):
     # And then the rest...
     
 def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    """Great-circle distance in meters between two WGS84 points."""
+    """
+    @brief Distance in meters between two points using GPS data
+    """
     R = 6371000.0
     lat1, lon1, lat2, lon2 = np.radians([lat1, lon1, lat2, lon2])
     dlat, dlon = lat2 - lat1, lon2 - lon1
-    a = np.sin(dlat/2.0)**2 + np.cos(lat1)*np.cos(lat2)*np.sin(dlon/2.0)**2
+    a = np.sin(dlat / 2.0)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2.0)**2
     return float(2.0 * R * np.arcsin(np.sqrt(a)))
 
 def load_gpx_points(path: str, track: IntEnum) -> np.ndarray:
@@ -75,11 +78,10 @@ def compute_segments(pts: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     for i in range(1, N):
         dist[i] = dist[i-1] + haversine(lat[i-1], lon[i-1], lat[i], lon[i])
 
-    # Compute grade (elevation change / horizontal distance)
+    # Compute grade 
     d_ele = np.diff(ele, prepend=ele[0])
     d_dist = np.diff(dist, prepend=0.0)
     
-    # Avoid division by zero - where distance is zero, grade is also zero
     grade_deg = np.zeros(N, dtype=float)
     mask = d_dist > 1e-6  # Only compute where there's meaningful distance
     grade_deg[mask] = np.degrees(np.arctan(d_ele[mask] / d_dist[mask]))
@@ -102,9 +104,7 @@ def interpolate_to_time_grid(
     @param  avg_speed Estimated average speed for calculating time grid (m/s)
     @return (theta_interp, ghi_interp) - interpolated arrays matching simulation steps
     """
-    # For now, return as-is - in production, implement proper interpolation
-    # based on expected travel time between points
-    # This is a placeholder that assumes GPS points align with timesteps
+    # TODO
     return theta_deg, ghi
 
 # ----------------------------
