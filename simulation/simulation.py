@@ -21,7 +21,7 @@ class VehicleParams:
   C_RR: float = 0.004                               # rolling resistance 
   solar_area: float = 4.0                           # Solar array area
   panel_eff: float = 0.243                          # electrical panel efficiency (fraction)
-  bat_max_energy: float = 40 * 3.63 * 36 * 3600     # battery energy capacity, Joules
+  bat_max_energy: float = 40 * 3.63 * 36 * 3600     # battery energy capacity, Joules (40 - Ah, 3.63 - nominal cell voltage, 36 - number of cells, 3600 - watt hours to joules)
   air_density: float = 1.293                        # air density
   gravity_const: float = 9.81                       # gravity
   # regen_eff: float = 0.0                            # TODO Find out
