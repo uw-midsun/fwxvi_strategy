@@ -4,3 +4,5 @@ matplotlib
 gpxpy
 requests
 pyyaml
+mkdocs-material
+mkdocstrings[python]

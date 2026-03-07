@@ -68,7 +68,7 @@ def run_test_scenario(yaml_path: str, config: SimConfig) -> SimResult:
         dist_km = res.traces["distance_m"] / 1000
         soc_wh = wh_from_joules(res.traces["Ebat_J"])
         bat_max_wh = wh_from_joules(params.bat_max_energy)
-        generate_plots(dist_km, res, soc_wh, bat_max_wh)
+        generate_plots(dist_km, res, soc_wh, config.min_soc, bat_max_wh)
 
     return res
 
@@ -138,7 +138,7 @@ def run_raceday_scenario(config: SimConfig) -> SimResult:
         dist_km = res.traces["distance_m"] / 1000
         soc_wh = wh_from_joules(res.traces["Ebat_J"])
         bat_max_wh = wh_from_joules(params.bat_max_energy)
-        generate_plots(dist_km, res, soc_wh, bat_max_wh)
+        generate_plots(dist_km, res, soc_wh, config.min_soc, bat_max_wh)
 
     return res
 
