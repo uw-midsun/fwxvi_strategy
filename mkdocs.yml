@@ -45,13 +45,19 @@ markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
+  - pymdownx.arithmatex:
+      generic: true
   - toc:
       permalink: true
 
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
 nav:
   - Home: index.md
-  # - Guides:
-    # TODO
+  - Guides:
+    - Our Math: guides/strategy_arch.md
   - API Reference:
       - simulation/: api/simulation.md
 
