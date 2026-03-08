@@ -17,7 +17,8 @@ from __future__ import annotations
 from typing import List, Dict, Tuple, Optional
 import json
 import numpy as np
-import gpxpy, gpxpy.gpx
+import gpxpy
+import gpxpy.gpx
 from enum import IntEnum
 
 # ----------------------------
@@ -32,6 +33,7 @@ class AscTrack(IntEnum):
         This is not fully listed out since this repo still uses asc2024 track data.
         Will be updated when we get asc2026 track data.
     """
+
     NashvilleToPaducah = 0
     # And then the rest...
 
@@ -41,8 +43,7 @@ def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     R = 6371000.0
     lat1, lon1, lat2, lon2 = np.radians([lat1, lon1, lat2, lon2])
     dlat, dlon = lat2 - lat1, lon2 - lon1
-    a = np.sin(
-        dlat / 2.0)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2.0)**2
+    a = np.sin(dlat / 2.0) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2.0) ** 2
     return float(2.0 * R * np.arcsin(np.sqrt(a)))
 
 
@@ -56,7 +57,7 @@ def load_gpx_points(path: str, track: IntEnum) -> np.ndarray:
     Returns:
         np.ndarray of shape [N, 3] as (lat, lon, elevation).
     """
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, "r", encoding="utf-8") as f:
         gpx = gpxpy.parse(f)
 
     pts = []
@@ -90,8 +91,7 @@ def compute_segments(pts: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     N = len(pts)
     dist = np.zeros(N, dtype=float)
     for i in range(1, N):
-        dist[i] = dist[i - 1] + haversine(lat[i - 1], lon[i - 1], lat[i],
-                                          lon[i])
+        dist[i] = dist[i - 1] + haversine(lat[i - 1], lon[i - 1], lat[i], lon[i])
 
     # Compute grade
     d_ele = np.diff(ele, prepend=ele[0])
@@ -105,11 +105,12 @@ def compute_segments(pts: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
 
 
 def interpolate_to_time_grid(
-        theta_deg: np.ndarray,
-        ghi: np.ndarray,
-        dist_m: np.ndarray,
-        dt: float,
-        avg_speed: float = 15.0) -> Tuple[np.ndarray, np.ndarray]:
+    theta_deg: np.ndarray,
+    ghi: np.ndarray,
+    dist_m: np.ndarray,
+    dt: float,
+    avg_speed: float = 15.0,
+) -> Tuple[np.ndarray, np.ndarray]:
     """Interpolates GPS-based data to match simulation timesteps.
 
     Args:
@@ -168,14 +169,16 @@ def color_for_speed(v: float, vmin: float = 10.0, vmax: float = 20.0) -> str:
 # ----------------------------
 # Public API
 # ----------------------------
-def export_grafana_json(gpx_path: str,
-                        track: AscTrack,
-                        speed: np.ndarray,
-                        theta_deg: Optional[np.ndarray] = None,
-                        ghi: Optional[np.ndarray] = None,
-                        vmin: float = 10.0,
-                        vmax: float = 20.0,
-                        outfile: Optional[str] = None) -> Dict:
+def export_grafana_json(
+    gpx_path: str,
+    track: AscTrack,
+    speed: np.ndarray,
+    theta_deg: Optional[np.ndarray] = None,
+    ghi: Optional[np.ndarray] = None,
+    vmin: float = 10.0,
+    vmax: float = 20.0,
+    outfile: Optional[str] = None,
+) -> Dict:
     """Builds a JSON object suitable for Grafana map visualization.
 
     Each entry includes lat/lon, segment info, and color-coded speed.
@@ -217,11 +220,7 @@ def export_grafana_json(gpx_path: str,
 
     json_obj = {
         "segments": data,
-        "meta": {
-            "vmin": vmin,
-            "vmax": vmax,
-            "total_segments": n_segments
-        }
+        "meta": {"vmin": vmin, "vmax": vmax, "total_segments": n_segments},
     }
 
     if outfile:

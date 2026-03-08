@@ -6,10 +6,8 @@ Group: Strategy_XVI
 """
 
 from __future__ import annotations
-import os
 import numpy as np
 from pathlib import Path
-from typing import Tuple, Optional
 
 from simulation import simulate, VehicleParams, wh_from_joules, SimResult
 from optimizer import SLSQP_velocity, OptimizeConfig
@@ -64,7 +62,7 @@ def run_test_scenario(yaml_path: str, config: SimConfig) -> SimResult:
 
     # Ask if user wants to see plots
     plot_choice = input("\nGenerate plots? (y/n): ").strip().lower()
-    if plot_choice in ('y', 'yes'):
+    if plot_choice in ("y", "yes"):
         dist_km = res.traces["distance_m"] / 1000
         soc_wh = wh_from_joules(res.traces["Ebat_J"])
         bat_max_wh = wh_from_joules(params.bat_max_energy)
@@ -82,7 +80,7 @@ def run_raceday_scenario(config: SimConfig) -> SimResult:
     Returns:
         Simulation result.
     """
-    print(f"\nLoading race day scenario...")
+    print("\nLoading race day scenario...")
 
     # Load GPX data
     data_dir = Path(__file__).parent.parent / "data" / "asc_24_(temp)"
@@ -134,7 +132,7 @@ def run_raceday_scenario(config: SimConfig) -> SimResult:
 
     # Ask if user wants to see plots
     plot_choice = input("\nGenerate plots? (y/n): ").strip().lower()
-    if plot_choice in ('y', 'yes'):
+    if plot_choice in ("y", "yes"):
         dist_km = res.traces["distance_m"] / 1000
         soc_wh = wh_from_joules(res.traces["Ebat_J"])
         bat_max_wh = wh_from_joules(params.bat_max_energy)
@@ -143,8 +141,7 @@ def run_raceday_scenario(config: SimConfig) -> SimResult:
     return res
 
 
-def _print_results(res: SimResult, best_vs: np.ndarray,
-                   params: VehicleParams) -> None:
+def _print_results(res: SimResult, best_vs: np.ndarray, params: VehicleParams) -> None:
     """Print formatted simulation results.
 
     Args:
@@ -152,21 +149,15 @@ def _print_results(res: SimResult, best_vs: np.ndarray,
         best_vs: Optimized velocity profile.
         params: Vehicle parameters.
     """
-    print(f"\n{'-'*50}")
+    print(f"\n{'-' * 50}")
     print("Simulation Results")
-    print(f"{'-'*50}")
-    print(f"Final distance:        {res.final_distance_m/1000:.2f} km")
+    print(f"{'-' * 50}")
+    print(f"Final distance:        {res.final_distance_m / 1000:.2f} km")
     print(f"Final SOC:             {wh_from_joules(res.final_soc_J):.2f} Wh")
-    print(
-        f"Initial battery:       {wh_from_joules(params.bat_max_energy):.2f} Wh"
-    )
-    print(
-        f"Energy consumed:       {wh_from_joules(params.bat_max_energy - res.final_soc_J):.2f} Wh"
-    )
-    print(
-        f"Average speed:         {np.mean(best_vs):.2f} m/s ({np.mean(best_vs)*3.6:.2f} km/h)"
-    )
+    print(f"Initial battery:       {wh_from_joules(params.bat_max_energy):.2f} Wh")
+    print(f"Energy consumed:       {wh_from_joules(params.bat_max_energy - res.final_soc_J):.2f} Wh")
+    print(f"Average speed:         {np.mean(best_vs):.2f} m/s ({np.mean(best_vs) * 3.6:.2f} km/h)")
     print(f"Min speed:             {np.min(best_vs):.2f} m/s")
     print(f"Max speed:             {np.max(best_vs):.2f} m/s")
     print(f"Number of steps:       {len(best_vs)}")
-    print(f"{'-'*50}\n")
+    print(f"{'-' * 50}\n")

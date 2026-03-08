@@ -18,7 +18,7 @@ def generate_plots(
     res: SimResult,
     soc_wh: np.ndarray,
     min_soc: float,
-    bat_max_wh: float = None
+    bat_max_wh: float = None,
 ) -> None:
     """Generates speed and battery plots from simulation results.
 
@@ -38,19 +38,21 @@ def generate_plots(
     v = v[:n]
     soc_wh = soc_wh[:n]
 
-    ax[0].step(dist_km, v, where='post', linewidth=1.5)
-    ax[0].plot(dist_km, v, 'o', markersize=4)
+    ax[0].step(dist_km, v, where="post", linewidth=1.5)
+    ax[0].plot(dist_km, v, "o", markersize=4)
     ax[0].set_ylabel("Speed (m/s)")
     ax[0].grid(True, alpha=0.3)
 
-    ax[1].plot(dist_km, soc_wh, marker='o', markersize=4, label="Battery SOC")
+    ax[1].plot(dist_km, soc_wh, marker="o", markersize=4, label="Battery SOC")
     if bat_max_wh is not None:
         threshold_wh = min_soc * bat_max_wh
-        ax[1].axhline(y=threshold_wh,
-                      color='r',
-                      linestyle='--',
-                      linewidth=1.5,
-                      label=f"{min_soc*100}% minimum")
+        ax[1].axhline(
+            y=threshold_wh,
+            color="r",
+            linestyle="--",
+            linewidth=1.5,
+            label=f"{min_soc * 100}% minimum",
+        )
         ax[1].legend()
     ax[1].set_ylabel("Battery (Wh)")
     ax[1].set_xlabel("Distance (km)")

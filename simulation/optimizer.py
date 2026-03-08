@@ -16,6 +16,8 @@ from simulation import simulate, VehicleParams
 @dataclass
 class OptimizeConfig:
     """A configuration dataclass for the optimizer."""
+
+    # fmt: off
     dt: float = 10.0            # Time step (s)
     horizon: int = 600          # How many seconds we want to simulate (s)
     d0: float = 0.0             # Starting distance (m)
@@ -24,11 +26,18 @@ class OptimizeConfig:
     method: str = "SLSQP"       # Optimization method from scipy
     max_iter: int = 1000        # Maximum itterations (regardless of if we reach convergence or not)
     min_soc: float = 0.2        # Minimum SOC threshold at the end of the simulation
+    # fmt: on
 
 
-def objective(vs: np.ndarray, dt: float, d0: float, theta_deg: np.ndarray,
-              ghi: np.ndarray, params: VehicleParams,
-              cfg: OptimizeConfig) -> float:
+def objective(
+    vs: np.ndarray,
+    dt: float,
+    d0: float,
+    theta_deg: np.ndarray,
+    ghi: np.ndarray,
+    params: VehicleParams,
+    cfg: OptimizeConfig,
+) -> float:
     """Objective for SciPy minimize.
 
     Args:
@@ -46,33 +55,34 @@ def objective(vs: np.ndarray, dt: float, d0: float, theta_deg: np.ndarray,
 
     if margin < 0:
         return 1e12 + 1e6 * (-margin)
-    
+
     return -res.final_distance_m
 
 
-def SLSQP_velocity(cfg: OptimizeConfig, theta_deg: np.ndarray, ghi: np.ndarray,
-                   params: VehicleParams) -> Tuple[np.ndarray, float]:
+def SLSQP_velocity(
+    cfg: OptimizeConfig, theta_deg: np.ndarray, ghi: np.ndarray, params: VehicleParams
+) -> Tuple[np.ndarray, float]:
     """Runs an SLSQP optimization on given slope and irradiance arrays.
 
-  Args:
-      cfg: Optimizer configuration data (see OptimizeConfig dataclass).
-      theta_deg: Numpy array of elevation in degrees.
-      ghi: Global horizontal index.
+    Args:
+        cfg: Optimizer configuration data (see OptimizeConfig dataclass).
+        theta_deg: Numpy array of elevation in degrees.
+        ghi: Global horizontal index.
 
-  Returns:
-      Best velocity array and objective value.
-  """
+    Returns:
+        Best velocity array and objective value.
+    """
     theta_deg = np.asarray(theta_deg, dtype=float)
-    ghi = np.asarray(ghi, dtype=float)  
+    ghi = np.asarray(ghi, dtype=float)
     N = int(cfg.horizon / cfg.dt)
-    
+
     N = len(theta_deg)
     if len(ghi) != N:
         raise ValueError("ghi and theta_deg must have same length")
 
     if abs(cfg.horizon - N * cfg.dt) > 1e-9:
-        print(f"Warning: horizon ({cfg.horizon}) != N*dt ({N*cfg.dt})")
-        
+        print(f"Warning: horizon ({cfg.horizon}) != N*dt ({N * cfg.dt})")
+
     vs0 = np.full(N, cfg.vmin)
 
     bounds = [(cfg.vmin, cfg.vmax)] * N
@@ -94,18 +104,22 @@ def SLSQP_velocity(cfg: OptimizeConfig, theta_deg: np.ndarray, ghi: np.ndarray,
         res = simulate(xk, cfg.dt, cfg.d0, theta_deg, ghi, params)
         obj = -res.final_distance_m
         soc_pct = res.final_soc_J / params.bat_max_energy * 100
-        iteration_log.append({
-            "iter": len(iteration_log),
-            "objective": obj,
-            "distance_km": res.final_distance_m / 1000,
-            "final_soc_pct": soc_pct,
-            "mean_speed": float(np.mean(xk)),
-        })
+        iteration_log.append(
+            {
+                "iter": len(iteration_log),
+                "objective": obj,
+                "distance_km": res.final_distance_m / 1000,
+                "final_soc_pct": soc_pct,
+                "mean_speed": float(np.mean(xk)),
+            }
+        )
         entry = iteration_log[-1]
-        print(f"  Iter {entry['iter']:4d} | "
-              f"dist={entry['distance_km']:.2f} km | "
-              f"SOC={entry['final_soc_pct']:.1f}% | "
-              f"avg_v={entry['mean_speed']:.2f} m/s")
+        print(
+            f"  Iter {entry['iter']:4d} | "
+            f"dist={entry['distance_km']:.2f} km | "
+            f"SOC={entry['final_soc_pct']:.1f}% | "
+            f"avg_v={entry['mean_speed']:.2f} m/s"
+        )
 
     # Pass cfg through to the objective so it can access tunable weights.
     result = minimize(
@@ -116,15 +130,10 @@ def SLSQP_velocity(cfg: OptimizeConfig, theta_deg: np.ndarray, ghi: np.ndarray,
         bounds=bounds,
         constraints=constraints,
         callback=callback,
-        options={
-            "maxiter": cfg.max_iter,
-            "disp": True
-        },
+        options={"maxiter": cfg.max_iter, "disp": True},
     )
     if not result.success:
-        print(
-            f"Warning: Optimization did not converge. Message: {result.message}"
-        )
+        print(f"Warning: Optimization did not converge. Message: {result.message}")
 
     best_vs = result.x
     best_obj = result.fun
@@ -132,8 +141,8 @@ def SLSQP_velocity(cfg: OptimizeConfig, theta_deg: np.ndarray, ghi: np.ndarray,
 
 
 def exhaustive_search_velocity(
-        cfg: OptimizeConfig, theta_deg: np.ndarray, ghi: np.ndarray,
-        params: VehicleParams) -> Tuple[np.ndarray, float]:
+    cfg: OptimizeConfig, theta_deg: np.ndarray, ghi: np.ndarray, params: VehicleParams
+) -> Tuple[np.ndarray, float]:
     """Perform an exhaustive search (try every single velocity vector) to find optimized velocity
 
     Args:

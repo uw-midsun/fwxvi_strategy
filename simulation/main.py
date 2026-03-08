@@ -46,9 +46,9 @@ def configure_menu(config: SimConfig) -> None:
         print("Options: [1-8] Change parameter | [r] Run | [q] Quit")
         choice = input("Select: ").strip().lower()
 
-        if choice == 'q':
+        if choice == "q":
             sys.exit(0)
-        elif choice == 'r':
+        elif choice == "r":
             return
         elif choice.isdigit() and int(choice) in param_map:
             param_name = param_map[int(choice)]
@@ -68,9 +68,9 @@ def main_menu() -> None:
     """Main interactive menu for testing suite."""
     config = SimConfig()
 
-    print('\n' + '-' * 50)
+    print("\n" + "-" * 50)
     print("MSXVI Strategy Testing Suite")
-    print('-' * 50)
+    print("-" * 50)
 
     while True:
         print("\nMain Menu:")
@@ -81,12 +81,12 @@ def main_menu() -> None:
 
         choice = input("\nSelect: ").strip().lower()
 
-        if choice == 'q':
+        if choice == "q":
             print("Exiting...")
             sys.exit(0)
-        elif choice == '1':
+        elif choice == "1":
             configure_menu(config)
-        elif choice == '2':
+        elif choice == "2":
             yaml_files = list_yaml_tests()
             if not yaml_files:
                 print("No YAML test files found in test/ directory.")
@@ -97,8 +97,7 @@ def main_menu() -> None:
                 print(f"  {idx}. {Path(path).name}")
 
             test_choice = input("Select test file (number): ").strip()
-            if test_choice.isdigit(
-            ) and 1 <= int(test_choice) <= len(yaml_files):
+            if test_choice.isdigit() and 1 <= int(test_choice) <= len(yaml_files):
                 try:
                     run_test_scenario(yaml_files[int(test_choice) - 1], config)
                 except Exception as e:
@@ -106,7 +105,7 @@ def main_menu() -> None:
             else:
                 print("Invalid selection.")
 
-        elif choice == '3':
+        elif choice == "3":
             try:
                 # Check for Solcast API key if enabled
                 if config.use_solcast and not config.solcast_api_key:

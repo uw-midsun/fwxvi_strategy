@@ -1,0 +1,35 @@
+name: Deploy MkDocs Documentation
+
+on:
+  push:
+    branches: [main]
+  # Allow manual dispatch
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install mkdocs-material "mkdocstrings[python]"
+
+      - name: Build MkDocs Documentation
+        run: mkdocs build --strict
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          publish_branch: mkdocs-deployment
+          force_orphan: true
+          full_commit_message: 'MkDocs: update documentation'

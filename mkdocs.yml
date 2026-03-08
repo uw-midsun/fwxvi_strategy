@@ -1,4 +1,5 @@
 site_name: FWXVI Strategy Documentation
+site_url: https://uw-midsun.github.io/fwxvi_strategy/
 theme:
   name: material
   logo: assets/midsun_logo.png

@@ -5,26 +5,28 @@ Author: Midnight Sun Team #24 - MSXVI
 Group: Strategy_XVI
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
-import json
 
 
 @dataclass
 class SimConfig:
     """Configuration parameters for simulation and optimization."""
+
+    # fmt: off
     # Optimization parameters
     dt: float = 1800.0      # Timestep
-    vmin: float = 8.9      # Minimum speed
+    vmin: float = 8.9       # Minimum speed
     vmax: float = 30.0      # Maximum speed
     method: str = "SLSQP"   # Optimization method
     max_iter: int = 2000    # Maximum iterations
-    min_soc: float = 0.2   # Energy penalty weight
+    min_soc: float = 0.2    # Energy penalty weight
 
     # Data sources
     use_solcast: bool = False              # Use Solcast API for GHI data
     solcast_api_key: Optional[str] = None  # Solcast API key
     gpx_file: str = "0_FullBaseRoute.gpx"  # GPX filename
+    # fmt: on
 
     def display(self) -> None:
         """Display all configuration parameters with indices."""
@@ -39,13 +41,13 @@ class SimConfig:
             ("gpx_file", self.gpx_file, "", "GPX filename"),
         ]
 
-        print(f"\n{'-'*50}")
+        print(f"\n{'-' * 50}")
         print("Current Configuration")
-        print(f"{'-'*50}")
+        print(f"{'-' * 50}")
         for idx, (name, value, unit, description) in enumerate(params, 1):
             unit_str = f" {unit}" if unit else ""
             print(f"{idx:2d}. {description:25s} = {value}{unit_str}")
-        print(f"{'-'*50}\n")
+        print(f"{'-' * 50}\n")
 
     def update_param(self, param_name: str, value: any) -> bool:
         """Update a configuration parameter.
@@ -62,9 +64,11 @@ class SimConfig:
             current_val = getattr(self, param_name)
             try:
                 if isinstance(current_val, bool):
-                    new_val = value.lower() in (
-                        'true', '1', 'yes',
-                        'y') if isinstance(value, str) else bool(value)
+                    new_val = (
+                        value.lower() in ("true", "1", "yes", "y")
+                        if isinstance(value, str)
+                        else bool(value)
+                    )
                 elif isinstance(current_val, int):
                     new_val = int(value)
                 elif isinstance(current_val, float):

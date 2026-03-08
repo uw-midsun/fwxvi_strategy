@@ -6,15 +6,16 @@ Group: Strategy_XVI
 """
 
 from dataclasses import dataclass
-from typing import NamedTuple, Optional, Dict
+from typing import NamedTuple, Dict
 import numpy as np
 
 # ! Some Values NEED to be verified for vehicle params
 
-
 @dataclass
 class VehicleParams:
     """A data class to store parameters for the model."""
+
+    # fmt: off
     mass: float = 450.0                             # mass
     drag_coeff: float = 0.18                        # drag coefficient
     front_area: float = 1.357                       # frontal area
@@ -25,10 +26,12 @@ class VehicleParams:
     air_density: float = 1.293                      # air density
     gravity_const: float = 9.81                     # gravity
     drive_eff: float = 0.94                         # drivetrain efficiency on traction losses in the set [0, 1]
+    # fmt: on
 
 
 class SimResult(NamedTuple):
     """The expected output values."""
+
     final_distance_m: float
     final_soc_J: float
     traces: Dict[str, np.ndarray]
@@ -37,8 +40,7 @@ class SimResult(NamedTuple):
 # ------------------------------------------------------------
 # Power calculations
 # ------------------------------------------------------------
-def rolling_power(v: np.ndarray, M: float, g: float,
-                  C_RR: float) -> np.ndarray:
+def rolling_power(v: np.ndarray, M: float, g: float, C_RR: float) -> np.ndarray:
     """Calculates rolling resistance power loss."""
     return (M * g * C_RR) * v
 
@@ -48,14 +50,12 @@ def drag_power(v: np.ndarray, rho: float, Cd: float, A: float) -> np.ndarray:
     return 0.5 * rho * Cd * A * v**3
 
 
-def grade_power(v: np.ndarray, theta_rad: np.ndarray, M: float,
-                g: float) -> np.ndarray:
+def grade_power(v: np.ndarray, theta_rad: np.ndarray, M: float, g: float) -> np.ndarray:
     """Calculates gravitational power (positive uphill, negative downhill)."""
     return M * g * np.sin(theta_rad) * v
 
 
-def solar_power(G_wm2: np.ndarray, A_solar: float,
-                panel_eff: float) -> np.ndarray:
+def solar_power(G_wm2: np.ndarray, A_solar: float, panel_eff: float) -> np.ndarray:
     """Calculates solar power generation."""
     return A_solar * panel_eff * G_wm2
 
@@ -73,18 +73,18 @@ def simulate(
 ) -> SimResult:
     """Vectorized simulation over a fixed horizon.
 
-  Args:
-      v: Speed profile (m/s).
-      dt: Timestep (s).
-      d0: Starting distance (m).
-      theta_deg: Road angle (from gpx files).
-      ghi: Global Horizontal Irradiance, we assume the panels lay flat
-          (room for improvement here).
-      params: Vehicle parameters (see dataclass).
+    Args:
+        v: Speed profile (m/s).
+        dt: Timestep (s).
+        d0: Starting distance (m).
+        theta_deg: Road angle (from gpx files).
+        ghi: Global Horizontal Irradiance, we assume the panels lay flat
+            (room for improvement here).
+        params: Vehicle parameters (see dataclass).
 
-  Returns:
-      SimResult(final_distance_m, final_soc_J, traces).
-  """
+    Returns:
+        SimResult(final_distance_m, final_soc_J, traces).
+    """
     v = np.asarray(v, dtype=float)
     N = v.size
     p = params
@@ -145,9 +145,9 @@ def simulate(
         "ghi": ghi,
         "v": v,
     }
-    return SimResult(final_distance_m=float(d[-1]),
-                     final_soc_J=float(Ebat_raw[-1]),
-                     traces=traces)
+    return SimResult(
+        final_distance_m=float(d[-1]), final_soc_J=float(Ebat_raw[-1]), traces=traces
+    )
 
 
 # ----------------------------
@@ -156,10 +156,10 @@ def simulate(
 def wh_from_joules(E_J: np.ndarray | float) -> np.ndarray | float:
     """Convert energy from Joules to Watt-hours.
 
-  Args:
-      E_J: Energy in Joules.
+    Args:
+        E_J: Energy in Joules.
 
-  Returns:
-      Energy in Watt-hours.
-  """
+    Returns:
+        Energy in Watt-hours.
+    """
     return np.asarray(E_J) / 3600.0
