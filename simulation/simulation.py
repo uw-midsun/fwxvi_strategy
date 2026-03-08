@@ -103,7 +103,7 @@ def simulate(
     P_grade_raw = grade_power(v, theta_rad, p.mass, p.gravity_const)
     # Apply drivetrain efficiency
     # TODO Account for Regen
-    P_grade_loss_pos = np.maximum(P_grade_raw, 0.0) / max(p.drive_eff, 1e-9) 
+    P_grade_loss_pos = np.maximum(P_grade_raw, 0.0) / max(p.drive_eff, 1e-9)
     P_rr_drive = P_rr / max(p.drive_eff, 1e-9)
     P_drag_drive = P_drag / max(p.drive_eff, 1e-9)
 
@@ -115,7 +115,6 @@ def simulate(
     # (Losses (positive) minus solar)
     P_net = (P_rr_drive + P_drag_drive + P_grade_loss_pos) - P_solar
 
-    
     E_rr = P_rr * dt
     E_drag = P_drag * dt
     E_grade = P_grade_raw * dt
