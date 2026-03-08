@@ -1,0 +1,678 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://uw-midsun.github.io/fwxvi_strategy/guides/strategy_arch/">
+      
+      
+        <link rel="prev" href="../..">
+      
+      
+        <link rel="next" href="../../api/simulation/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/midsun_logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Our Math - FWXVI Strategy Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#context" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="FWXVI Strategy Documentation" class="md-header__button md-logo" aria-label="FWXVI Strategy Documentation" data-md-component="logo">
+      
+  <img src="../../assets/midsun_logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FWXVI Strategy Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Our Math
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="FWXVI Strategy Documentation" class="md-nav__button md-logo" aria-label="FWXVI Strategy Documentation" data-md-component="logo">
+      
+  <img src="../../assets/midsun_logo.png" alt="logo">
+
+    </a>
+    FWXVI Strategy Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Our Math
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/simulation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    simulation/
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h1>
+<p>The American Solar Car challenge is a long distance across the US for solar cars! The goal of the strategy team is to find a critical/optimal speed to drive at. We compete in the SOV class:</p>
+<blockquote>
+<p>Single-Occupant vehicle teams will be ranked based on Official Distance driven (higher distance is best). Should teams tie on Official Distance, Official Elapsed Time will be used as a tie-breaker to determine ranking (shorter elapsed time is best).</p>
+</blockquote>
+<p>Each day, there is a base route that our solar car must complete. At select checkpoints, there is the option to repeatedly drive around in a loop to increase event distance, so if we finish our base route early, this is a great avenue to gain additional distance. Clearly, therefore, the main goal of our solar car’s strategy team will be to maximize distance and minimize time for ASC 2026.</p>
+<h1 id="defining-the-problem-statement">Defining the Problem Statement<a class="headerlink" href="#defining-the-problem-statement" title="Permanent link">&para;</a></h1>
+<p>Our goal is to choose a speed profile that maximizes expected official distance over a time period <span class="arithmatex">\([0, t]\)</span>, where <span class="arithmatex">\(t\)</span> is the total driving time allowed for that day. Our constraint is that the battery state of charge (SOC) must remain above 20% at the end of the day.</p>
+<h1 id="overview-of-solar-car-strategy">Overview of Solar Car Strategy<a class="headerlink" href="#overview-of-solar-car-strategy" title="Permanent link">&para;</a></h1>
+<h2 id="simulation">Simulation<a class="headerlink" href="#simulation" title="Permanent link">&para;</a></h2>
+<p>A good solar car strategy requires a good simulation model. Our current simulation models power lost through the drivetrain and power gained from the solar array.</p>
+<h3 id="drivetrain">Drivetrain<a class="headerlink" href="#drivetrain" title="Permanent link">&para;</a></h3>
+<p>For the drivetrain, we calculate three main power components. Recall that power is force times velocity:</p>
+<div class="arithmatex">\[
+P = Fv
+\]</div>
+<p>Thus, we model rolling resistance, aerodynamic drag, and road grade as:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+P_{rr} &amp;= C_{rr} m g \, v \\
+P_{drag} &amp;= \frac{1}{2} \rho C_d A v^3 \\
+P_{grade} &amp;= m g \sin(\theta)\, v
+\end{aligned}
+\]</div>
+<p>where:
+- <span class="arithmatex">\(C_{rr}\)</span> is the rolling resistance coefficient,
+- <span class="arithmatex">\(m\)</span> is the mass of the vehicle,
+- <span class="arithmatex">\(g\)</span> is gravitational acceleration,
+- <span class="arithmatex">\(\rho\)</span> is air density,
+- <span class="arithmatex">\(C_d\)</span> is the drag coefficient,
+- <span class="arithmatex">\(A\)</span> is frontal area,
+- <span class="arithmatex">\(\theta\)</span> is the road grade angle.</p>
+<h3 id="solar-power">Solar Power<a class="headerlink" href="#solar-power" title="Permanent link">&para;</a></h3>
+<p>For solar power, we use:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+P_{solar} &amp;= A_{solar}\,\eta_{panel}\,G
+\end{aligned}
+\]</div>
+<p>where <span class="arithmatex">\(\eta_{panel}\)</span> is panel efficiency and <span class="arithmatex">\(G\)</span> is the estimated irradiance.</p>
+<h3 id="net-battery-power">Net Battery Power<a class="headerlink" href="#net-battery-power" title="Permanent link">&para;</a></h3>
+<p>To account for drivetrain efficiency, we model the battery-side drivetrain power as:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+P_{rr,\text{drive}} &amp;= \frac{P_{rr}}{\eta_{drive}} \\
+P_{drag,\text{drive}} &amp;= \frac{P_{drag}}{\eta_{drive}} \\
+P_{grade,\text{drive}} &amp;= \frac{\max(P_{grade}, 0)}{\eta_{drive}}
+\end{aligned}
+\]</div>
+<p>Currently, the simulation does not yet account for regenerative braking, which is why the term <span class="arithmatex">\(\max(P_{grade}, 0)\)</span> is used. In other words, downhill gravitational power is not currently recovered into the battery.</p>
+<p>The net battery power draw is then</p>
+<div class="arithmatex">\[
+P_{net} = P_{rr,\text{drive}} + P_{drag,\text{drive}} + P_{grade,\text{drive}} - P_{solar}
+\]</div>
+<p>Here, positive terms represent battery power consumption, while solar power is subtracted since it offsets battery usage.</p>
+<p>Since power is energy per unit time, over one timestep we have:</p>
+<div class="arithmatex">\[
+E_{net,k} = P_{net,k}\,\Delta t
+\]</div>
+<h2 id="optimization">Optimization<a class="headerlink" href="#optimization" title="Permanent link">&para;</a></h2>
+<p>The goal of the optimizer is to choose a speed profile that maximizes total distance traveled.</p>
+<p>Let the speed profile be</p>
+<div class="arithmatex">\[
+v = [v_0, v_1, \dots, v_{N-1}] \in \mathbb{R}^N
+\]</div>
+<p>where <span class="arithmatex">\(N\)</span> is the number of time divisions in the optimization horizon.</p>
+<p>For example, if we split a 9-hour driving period into 60-minute intervals, then <span class="arithmatex">\(N = 9\)</span>.</p>
+<p>To compute how the car’s position changes over time, we start from the 1st order ODE:</p>
+<div class="arithmatex">\[
+\frac{dd}{dt} = v(t)
+\]</div>
+<p>Using forward Euler integration, distance evolves according to</p>
+<div class="arithmatex">\[
+d_{k+1} = d_k + v_k \Delta t
+\]</div>
+<p>Since our simulation is evaluated at discrete time steps rather than continuous, we approximate this differential equation using the <a href="https://math.libretexts.org/Bookshelves/Differential_Equations/Numerically_Solving_Ordinary_Differential_Equations_(Brorson)/01%3A_Chapters/1.02%3A_Forward_Euler_method">Forward Euler method</a>. Applying Forward Euler with timestep <span class="arithmatex">\(\delta t\)</span> gives</p>
+<div class="arithmatex">\[
+d_{k+1} = d_k + v_k \Delta t
+\]</div>
+<p>Extrapolating:</p>
+<div class="arithmatex">\[
+d_N = d_0 + \sum_{k=0}^{N-1} v_k \Delta t
+\]</div>
+<p>Thus, maximizing final distance is equivalent to maximizing</p>
+<div class="arithmatex">\[
+J(v) = d_0 + \sum_{k=0}^{N-1} v_k \Delta t
+\]</div>
+<p>Since <span class="arithmatex">\(d_0\)</span> is constant, this is also equivalent to maximizing</p>
+<div class="arithmatex">\[
+\sum_{k=0}^{N-1} v_k \Delta t
+\]</div>
+<p>In code, however, you may notice us minimizing <span class="arithmatex">\(-J(v)\)</span>, but they are essentially doing the same thing. </p>
+<h3 id="battery-energy-constraint">Battery Energy Constraint<a class="headerlink" href="#battery-energy-constraint" title="Permanent link">&para;</a></h3>
+<p>Recall from the problem statement that SOC must remain above 20% at the end of the day.</p>
+<p>At each timestep, battery energy evolves as</p>
+<div class="arithmatex">\[
+E_{bat,k+1} = E_{bat,k} - E_{net,k}
+\]</div>
+<p>or equivalently,</p>
+<div class="arithmatex">\[
+E_{bat,k+1} = E_{bat,k} - P_{net,k}\,\Delta t
+\]</div>
+<p>The state of charge is defined as the remaining battery energy divided by the maximum battery energy:</p>
+<div class="arithmatex">\[
+SOC_k = \frac{E_{bat,k}}{E_{bat,\max}}
+\]</div>
+<p>Therefore, the end-of-day SOC constraint is</p>
+<div class="arithmatex">\[
+SOC_N \geq 0.2
+\]</div>
+<p>or equivalently,</p>
+<div class="arithmatex">\[
+E_{bat,N} \geq 0.2\,E_{bat,\max}
+\]</div>
+<h2 id="formal-optimization-problem">Formal Optimization Problem<a class="headerlink" href="#formal-optimization-problem" title="Permanent link">&para;</a></h2>
+<p>More formally, the optimization problem can be written as</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\min_{v \in \mathbb{R}^N} \quad &amp; -J(v) \\
+\text{with constraints} \quad
+&amp; v_{\min} \leq v_k \leq v_{\max}, \\
+&amp; E_{bat,N} \geq 0.2\,E_{bat,\max}
+\end{aligned}
+\]</div>
+<h3 id="optimization-methods">Optimization Methods<a class="headerlink" href="#optimization-methods" title="Permanent link">&para;</a></h3>
+<p>Now there are several ways of optimizing for our problem, we use a gradient based one called <a href="https://docs.scipy.org/doc/scipy/reference/optimize.minimize-slsqp.html">SLSQP</a>. In the future we may try other optimization algorithms. </p>
+<h1 id="note-on-benchmarking">Note on Benchmarking<a class="headerlink" href="#note-on-benchmarking" title="Permanent link">&para;</a></h1>
+<p>In the future we will be benchmarking our optimization algorithms. To do this, we will evaluate them on smaller problem instances and compare their results to an <a href="https://en.wikipedia.org/wiki/Brute-force_search">exhaustic search</a> (Tries every single possible vector). This allows us to determine whether the optimizer converges to the correct solution and how many iterations it requires to reach it.</p>
+<p>To bench mark our simulation models, the plan is to get data from the car about speeds driven at versus SOC lost, and tweaking our model until we get similar results to ones observed.</p>
+<h1 id="implementing-it-in-code">Implementing it in Code:<a class="headerlink" href="#implementing-it-in-code" title="Permanent link">&para;</a></h1>
+<p>The diagram below serves as a good model to what we do and plan on doing:
+<img alt="" src="../../architecture.svg" /></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "content.code.copy", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
