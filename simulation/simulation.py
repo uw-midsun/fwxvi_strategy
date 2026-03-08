@@ -11,6 +11,7 @@ import numpy as np
 
 # ! Some Values NEED to be verified for vehicle params
 
+
 @dataclass
 class VehicleParams:
     """A data class to store parameters for the model."""

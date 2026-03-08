@@ -155,8 +155,12 @@ def _print_results(res: SimResult, best_vs: np.ndarray, params: VehicleParams) -
     print(f"Final distance:        {res.final_distance_m / 1000:.2f} km")
     print(f"Final SOC:             {wh_from_joules(res.final_soc_J):.2f} Wh")
     print(f"Initial battery:       {wh_from_joules(params.bat_max_energy):.2f} Wh")
-    print(f"Energy consumed:       {wh_from_joules(params.bat_max_energy - res.final_soc_J):.2f} Wh")
-    print(f"Average speed:         {np.mean(best_vs):.2f} m/s ({np.mean(best_vs) * 3.6:.2f} km/h)")
+    print(
+        f"Energy consumed:       {wh_from_joules(params.bat_max_energy - res.final_soc_J):.2f} Wh"
+    )
+    print(
+        f"Average speed:         {np.mean(best_vs):.2f} m/s ({np.mean(best_vs) * 3.6:.2f} km/h)"
+    )
     print(f"Min speed:             {np.min(best_vs):.2f} m/s")
     print(f"Max speed:             {np.max(best_vs):.2f} m/s")
     print(f"Number of steps:       {len(best_vs)}")
