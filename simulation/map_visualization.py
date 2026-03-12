@@ -122,8 +122,14 @@ def interpolate_to_time_grid(
     Returns:
         (theta_interp, ghi_interp) - interpolated arrays matching simulation steps.
     """
-    # TODO
-    return theta_deg, ghi
+    total_time = dist_m[-1] / avg_speed         # rough estimate based on average speed, this will not be accurate because the actual speed profile will differ, but it gives us a starting point for interpolation
+                                                # TODO: Could be improved by using actual speed profiles or iteratevely refining based on previous runs
+    N_steps = max(1, int(total_time / dt))
+    pos_grid = np.linspace(0.0, dist_m[-1], N_steps)
+    theta_interp = np.interp(pos_grid, dist_m, theta_deg)
+    ghi_interp = np.interp(pos_grid, dist_m, ghi)
+
+    return theta_interp, ghi_interp
 
 
 # ----------------------------

@@ -13,7 +13,7 @@ from typing import Tuple, Optional
 
 from simulation import simulate, VehicleParams, wh_from_joules, SimResult
 from optimizer import SLSQP_velocity, OptimizeConfig
-from map_visualization import load_gpx_points, compute_segments, AscTrack
+from map_visualization import load_gpx_points, compute_segments, AscTrack, interpolate_to_time_grid
 from mock_data import load_mock_yaml
 from config import SimConfig
 from plots import generate_plots
@@ -106,7 +106,8 @@ def run_raceday_scenario(config: SimConfig) -> SimResult:
 
     # Setup simulation
     dt = config.dt
-    N_steps = N_gps
+    theta_deg, ghi = interpolate_to_time_grid(theta_deg, ghi, dist_m, dt)
+    N_steps = len(theta_deg)
     horizon = N_steps * dt
 
     # Use default vehicle params from VehicleParams dataclass
@@ -138,7 +139,8 @@ def run_raceday_scenario(config: SimConfig) -> SimResult:
         dist_km = res.traces["distance_m"] / 1000
         soc_wh = wh_from_joules(res.traces["Ebat_J"])
         bat_max_wh = wh_from_joules(params.bat_max_energy)
-        generate_plots(dist_km, res, soc_wh, bat_max_wh)
+        generate_plots(dist_km, res, soc_wh, bat_max_wh,
+                       ele_m=pts[:, 2], dist_m_gps=dist_m)
 
     return res
 
