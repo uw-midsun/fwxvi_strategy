@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import Tuple
 from scipy.optimize import minimize
 from simulation import simulate, VehicleParams
+import itertools
 
 
 @dataclass
@@ -153,4 +154,47 @@ def exhaustive_search_velocity(
     Returns:
         Best velocity array and objective value.
     """
-    # TODO
+
+    theta_deg = np.asarray(theta_deg, dtype=float)
+    ghi = np.asarray(ghi, dtype=float)
+    N = len(theta_deg)
+    
+    if len(ghi) != N:
+        raise ValueError("ghi and theta_deg must have same length")
+
+    # Discretize the velocity space in deal scenario
+    # v_grid = np.linspace(cfg.vmin, cfg.vmax, num=8)
+    # Change num=8 to num=3 just for testing purposes
+    v_grid = np.linspace(cfg.vmin, cfg.vmax, num=4)
+
+    best_vs = None
+    best_obj = float('inf')
+    min_reserve = cfg.min_soc * params.bat_max_energy
+
+    print(f"Starting exhaustive search for N={N}. Total permutations: {len(v_grid)**N}")
+
+    # itertools.product generates every possible combination of v_grid of length N
+    for vs_tuple in itertools.product(v_grid, repeat=N):
+        vs = np.array(vs_tuple)
+        
+        # Simulate this specific velocity profile
+        res = simulate(vs, cfg.dt, cfg.d0, theta_deg, ghi, params)
+        
+        # Check SOC constraint
+        margin = np.min(res.traces["Ebat_raw_J"][1:] - min_reserve)
+        if margin < 0:
+            continue  # Battery died, skip this profile
+            
+        obj = -res.final_distance_m
+
+        # If it's better, save it
+        if obj < best_obj:
+            best_obj = obj
+            best_vs = vs.copy()
+            print(f"New best: dist={res.final_distance_m / 1000:.2f} km | vs={vs}")
+
+    if best_vs is None:
+        best_vs = np.full(N, cfg.vmin)
+        best_obj = 1e12
+
+    return best_vs, best_obj

@@ -10,7 +10,7 @@ import numpy as np
 from pathlib import Path
 
 from simulation import simulate, VehicleParams, wh_from_joules, SimResult
-from optimizer import SLSQP_velocity, OptimizeConfig
+from optimizer import SLSQP_velocity, exhaustive_search_velocity, OptimizeConfig
 from map_visualization import load_gpx_points, compute_segments, AscTrack
 from mock_data import load_mock_yaml
 from config import SimConfig
@@ -19,18 +19,22 @@ from plots import generate_plots
 SOLCAST_AVAILABLE = False
 
 
-def run_test_scenario(yaml_path: str, config: SimConfig) -> SimResult:
-    """Run a test scenario using mock YAML data.
+def run_test_scenario(test_path: str, config: SimConfig) -> SimResult:
+    """Run a test scenario using mock YAML or CSV data.
 
     Args:
-        yaml_path: Path to YAML test file.
+        test_path: Path to test file (YAML or CSV).
         config: Simulation configuration.
 
     Returns:
         Simulation result.
     """
-    print(f"\nLoading test scenario: {yaml_path}")
-    theta_deg, ghi, meta = load_mock_yaml(yaml_path)
+    print(f"\nLoading test scenario: {test_path}")
+    if test_path.lower().endswith('.csv'):
+        from mock_data import load_mock_csv
+        theta_deg, ghi, meta = load_mock_csv(test_path)
+    else:
+        theta_deg, ghi, meta = load_mock_yaml(test_path)
 
     dt = meta.get("dt", config.dt)
     d0 = meta.get("d0", 0.0)
@@ -51,8 +55,10 @@ def run_test_scenario(yaml_path: str, config: SimConfig) -> SimResult:
         min_soc=config.min_soc,
     )
 
-    print("Optimizing velocity profile...")
+    print("Optimizing velocity profile using the SLSQP method...")
     best_vs, best_obj = SLSQP_velocity(opt_cfg, theta_deg, ghi, params)
+    # print("Optimizing velocity profile using the Exhaustive Search Optimization method...")
+    # best_vs, best_obj = exhaustive_search_velocity(opt_cfg, theta_deg, ghi, params)
     print(f"Optimization complete. Objective: {best_obj:.2f}")
 
     print("Simulating...")

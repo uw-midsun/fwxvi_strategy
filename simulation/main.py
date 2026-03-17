@@ -13,15 +13,12 @@ from config import SimConfig
 from scenarios import run_test_scenario, run_raceday_scenario
 
 
-def list_yaml_tests() -> list:
-    """List available YAML test files.
 
-    Returns:
-        List of YAML file paths.
-    """
+def list_test_files() -> list:
+    """List available test files (YAML and CSV)."""
     test_dir = Path(__file__).parent.parent / "test"
-    yaml_files = list(test_dir.glob("*.yaml"))
-    return sorted([str(f) for f in yaml_files])
+    test_files = list(test_dir.glob("*.yaml")) + list(test_dir.glob("*.csv"))
+    return sorted([str(f) for f in test_files])
 
 
 def configure_menu(config: SimConfig) -> None:
@@ -75,7 +72,7 @@ def main_menu() -> None:
     while True:
         print("\nMain Menu:")
         print("  1. Configure parameters")
-        print("  2. Run test scenario (YAML)")
+        print("  2. Run test scenario (YAML/CSV)")
         print("  3. Run race day scenario (GPX + Solcast)")
         print("  q. Quit")
 
@@ -86,20 +83,21 @@ def main_menu() -> None:
             sys.exit(0)
         elif choice == "1":
             configure_menu(config)
-        elif choice == "2":
-            yaml_files = list_yaml_tests()
-            if not yaml_files:
-                print("No YAML test files found in test/ directory.")
+
+        elif choice == '2':
+            test_files = list_test_files()
+            if not test_files:
+                print("No test files found in test/ directory.")
                 continue
 
             print("\nAvailable test files:")
-            for idx, path in enumerate(yaml_files, 1):
+            for idx, path in enumerate(test_files, 1):
                 print(f"  {idx}. {Path(path).name}")
 
             test_choice = input("Select test file (number): ").strip()
-            if test_choice.isdigit() and 1 <= int(test_choice) <= len(yaml_files):
+            if test_choice.isdigit() and 1 <= int(test_choice) <= len(test_files):
                 try:
-                    run_test_scenario(yaml_files[int(test_choice) - 1], config)
+                    run_test_scenario(test_files[int(test_choice) - 1], config)
                 except Exception as e:
                     print(f"Error running test: {e}")
             else:
