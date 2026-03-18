@@ -41,8 +41,12 @@ def run_test_scenario(yaml_path: str, config: SimConfig) -> SimResult:
     avg_v = (config.vmin + config.vmax) / 2
     total_dist = N_steps * dt * avg_v
     dist_points = np.linspace(0, total_dist, N_steps)
-    theta_fn = lambda d: np.interp(d, dist_points, theta_deg_arr)
-    ghi_fn = lambda d: np.interp(d, dist_points, ghi_arr)
+
+    def theta_fn(d):
+        return np.interp(d, dist_points, theta_deg_arr)
+
+    def ghi_fn(d):
+        return np.interp(d, dist_points, ghi_arr)
 
     params = VehicleParams()
 
@@ -110,8 +114,11 @@ def run_raceday_scenario(config: SimConfig) -> SimResult:
         ghi_arr = np.linspace(700, 900, len(pts))
 
     # Build position-based lookup functions from GPS data
-    theta_fn = lambda d: np.interp(d, dist_m, theta_deg_arr)
-    ghi_fn = lambda d: np.interp(d, dist_m, ghi_arr)
+    def theta_fn(d):
+        return np.interp(d, dist_m, theta_deg_arr)
+
+    def ghi_fn(d):
+        return np.interp(d, dist_m, ghi_arr)
 
     # Setup simulation
     dt = config.dt
