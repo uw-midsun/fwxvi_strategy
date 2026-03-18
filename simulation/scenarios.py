@@ -139,7 +139,9 @@ def run_raceday_scenario(config: SimConfig) -> SimResult:
         min_soc=config.min_soc,
     )
 
-    print(f"Optimizing velocity profile ({N_steps} steps, {horizon/3600:.1f}h horizon)...")
+    print(
+        f"Optimizing velocity profile ({N_steps} steps, {horizon / 3600:.1f}h horizon)..."
+    )
     best_vs, best_obj = SLSQP_velocity(opt_cfg, theta_fn, ghi_fn, params)
     print(f"Optimization complete. Objective: {best_obj:.2f}")
 
