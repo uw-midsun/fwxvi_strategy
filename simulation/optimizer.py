@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import Tuple, Callable
 from scipy.optimize import minimize
 from simulation import simulate, VehicleParams
+import itertools
 
 
 @dataclass
@@ -19,7 +20,7 @@ class OptimizeConfig:
 
     # fmt: off
     dt: float = 10.0            # Time step (s)
-    horizon: float = 28800.0    # How many seconds we want to simulate (s) (8 hours = 28800s)
+    horizon: int = 28800        # How many seconds we want to simulate (s)
     d0: float = 0.0             # Starting distance (m)
     vmin: float = 8.9           # Minimum allowed speed (m/s), default value as per ASC 2026 regs
     vmax: float = 29.0          # Maximum allowed speed (m/s), default value as per ASC 2026 regs
@@ -136,12 +137,49 @@ def exhaustive_search_velocity(
 ) -> Tuple[np.ndarray, float]:
     """Perform an exhaustive search (try every single velocity vector) to find optimized velocity
 
+    Mainly used for benchmarking, hence small N
+
     Args:
         cfg: Optimizer configuration data (see OptimizeConfig dataclass).
-        theta_fn: Callable returning road grade (deg) at given distance(s).
-        ghi_fn: Callable returning GHI (W/m^2) at given distance(s).
+        theta_fn: Callable that takes an array of indices or distances and returns road grade (deg) array.
+        ghi_fn: Callable that takes an array of indices or distances and returns GHI (W/m^2) array.
+        params: Vehicle parameters.
 
     Returns:
         Best velocity array and objective value.
     """
-    # TODO
+
+    # N = int(cfg.horizon / cfg.dt)
+    N = 10  # For testing, set to 10. Change back to above for full search (warning: very slow!)
+
+    v_grid = np.linspace(cfg.vmin, cfg.vmax, num=4)
+
+    best_vs = None
+    best_obj = float("inf")
+    min_reserve = cfg.min_soc * params.bat_max_energy
+
+    print(
+        f"Starting exhaustive search for N={N}. Total permutations: {len(v_grid) ** N}"
+    )
+
+    for vs_tuple in itertools.product(v_grid, repeat=N):
+        vs = np.array(vs_tuple)
+        res = simulate(vs, cfg.dt, cfg.d0, theta_fn, ghi_fn, params)
+        margin = np.min(res.traces["Ebat_raw_J"][1:] - min_reserve)
+        if margin < 0:
+            continue  # Battery below SOC, skip this profile
+        obj = -res.final_distance_m
+        if obj < best_obj:
+            best_obj = obj
+            best_vs = vs.copy()
+            formatted_vs = "[" + ", ".join(f"{float(v):.2f}" for v in vs) + "]"
+            print(
+                f"New best: dist={res.final_distance_m / 1000:.2f} km | "
+                f"vs={formatted_vs}"
+            )
+
+    if best_vs is None:
+        best_vs = np.full(N, cfg.vmin)
+        best_obj = 1e12
+
+    return best_vs, best_obj

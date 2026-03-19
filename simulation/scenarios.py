@@ -8,9 +8,10 @@ Group: Strategy_XVI
 from __future__ import annotations
 import numpy as np
 from pathlib import Path
+from mock_data import load_mock_csv
 
 from simulation import simulate, VehicleParams, wh_from_joules, SimResult
-from optimizer import SLSQP_velocity, OptimizeConfig
+from optimizer import SLSQP_velocity, exhaustive_search_velocity, OptimizeConfig
 from map_visualization import load_gpx_points, compute_segments, AscTrack
 from mock_data import load_mock_yaml
 from config import SimConfig
@@ -19,18 +20,21 @@ from plots import generate_plots
 SOLCAST_AVAILABLE = False
 
 
-def run_test_scenario(yaml_path: str, config: SimConfig) -> SimResult:
-    """Run a test scenario using mock YAML data.
+def run_test_scenario(test_path: str, config: SimConfig) -> SimResult:
+    """Run a test scenario using mock YAML or CSV data.
 
     Args:
-        yaml_path: Path to YAML test file.
+        test_path: Path to test file (YAML or CSV).
         config: Simulation configuration.
 
     Returns:
         Simulation result.
     """
-    print(f"\nLoading test scenario: {yaml_path}")
-    theta_deg_arr, ghi_arr, meta = load_mock_yaml(yaml_path)
+    print(f"\nLoading test scenario: {test_path}")
+    if test_path.lower().endswith(".csv"):
+        theta_deg_arr, ghi_arr, meta = load_mock_csv(test_path)
+    else:
+        theta_deg_arr, ghi_arr, meta = load_mock_yaml(test_path)
 
     dt = meta.get("dt", config.dt)
     d0 = meta.get("d0", 0.0)
@@ -50,22 +54,37 @@ def run_test_scenario(yaml_path: str, config: SimConfig) -> SimResult:
 
     params = VehicleParams()
 
-    # Build optimizer config
+    print("\nOptimization Methods:")
+    print("  1. SLSQP (fast, gradient-based)")
+    print("  2. Exhaustive Search (slow, brute-force)")
+    choice = input("\nSelect optimization method: ").strip()
+
+    if choice == "2":
+        method = "exhaustive"
+    else:
+        method = "SLSQP"
+
     opt_cfg = OptimizeConfig(
         dt=dt,
         horizon=horizon,
         d0=d0,
         vmin=config.vmin,
         vmax=config.vmax,
-        method=config.method,
+        method=method,
         max_iter=config.max_iter,
         min_soc=config.min_soc,
     )
 
-    print("Optimizing velocity profile...")
-    best_vs, best_obj = SLSQP_velocity(opt_cfg, theta_fn, ghi_fn, params)
-    print(f"Optimization complete. Objective: {best_obj:.2f}")
+    if method == "SLSQP":
+        print("Optimizing velocity profile using SLSQP...")
+        best_vs, best_obj = SLSQP_velocity(opt_cfg, theta_fn, ghi_fn, params)
+    elif method == "exhaustive":
+        print("Optimizing velocity profile using Exhaustive Search...")
+        best_vs, best_obj = exhaustive_search_velocity(
+            opt_cfg, theta_fn, ghi_fn, params
+        )
 
+    print(f"Optimization complete. Objective: {best_obj:.2f}")
     print("Simulating...")
     res = simulate(best_vs, dt, d0, theta_fn, ghi_fn, params)
 
@@ -123,10 +142,19 @@ def run_raceday_scenario(config: SimConfig) -> SimResult:
     # Setup simulation
     dt = config.dt
     horizon = config.horizon
-    N_steps = int(horizon / dt)
 
     # Use default vehicle params from VehicleParams dataclass
     params = VehicleParams()
+
+    print("\nOptimization Methods:")
+    print("  1. SLSQP (fast, gradient-based)")
+    print("  2. Exhaustive Search (slow, brute-force)")
+    choice = input("\nSelect optimization method [1/2]: ").strip()
+
+    if choice == "2":
+        method = "exhaustive"
+    else:
+        method = "SLSQP"
 
     opt_cfg = OptimizeConfig(
         dt=dt,
@@ -134,17 +162,23 @@ def run_raceday_scenario(config: SimConfig) -> SimResult:
         d0=0.0,
         vmin=config.vmin,
         vmax=config.vmax,
-        method=config.method,
+        method=method,
         max_iter=config.max_iter,
         min_soc=config.min_soc,
     )
 
-    print(
-        f"Optimizing velocity profile ({N_steps} steps, {horizon / 3600:.1f}h horizon)..."
-    )
-    best_vs, best_obj = SLSQP_velocity(opt_cfg, theta_fn, ghi_fn, params)
-    print(f"Optimization complete. Objective: {best_obj:.2f}")
+    if method == "SLSQP":
+        print("Optimizing velocity profile using SLSQP (may take a while)...")
+        best_vs, best_obj = SLSQP_velocity(opt_cfg, theta_fn, ghi_fn, params)
+    else:
+        print(
+            "Optimizing velocity profile using Exhaustive Search (may take a while)..."
+        )
+        best_vs, best_obj = exhaustive_search_velocity(
+            opt_cfg, theta_fn, ghi_fn, params
+        )
 
+    print(f"Optimization complete. Objective: {best_obj:.2f}")
     print("Simulating...")
     res = simulate(best_vs, dt, 0.0, theta_fn, ghi_fn, params)
 
