@@ -30,12 +30,23 @@ def run_test_scenario(yaml_path: str, config: SimConfig) -> SimResult:
         Simulation result.
     """
     print(f"\nLoading test scenario: {yaml_path}")
-    theta_deg, ghi, meta = load_mock_yaml(yaml_path)
+    theta_deg_arr, ghi_arr, meta = load_mock_yaml(yaml_path)
 
     dt = meta.get("dt", config.dt)
     d0 = meta.get("d0", 0.0)
-    N_steps = theta_deg.size
+    N_steps = theta_deg_arr.size
     horizon = N_steps * dt
+
+    # Build position-based lookup functions from test arrays
+    avg_v = (config.vmin + config.vmax) / 2
+    total_dist = N_steps * dt * avg_v
+    dist_points = np.linspace(0, total_dist, N_steps)
+
+    def theta_fn(d):
+        return np.interp(d, dist_points, theta_deg_arr)
+
+    def ghi_fn(d):
+        return np.interp(d, dist_points, ghi_arr)
 
     params = VehicleParams()
 
@@ -52,11 +63,11 @@ def run_test_scenario(yaml_path: str, config: SimConfig) -> SimResult:
     )
 
     print("Optimizing velocity profile...")
-    best_vs, best_obj = SLSQP_velocity(opt_cfg, theta_deg, ghi, params)
+    best_vs, best_obj = SLSQP_velocity(opt_cfg, theta_fn, ghi_fn, params)
     print(f"Optimization complete. Objective: {best_obj:.2f}")
 
     print("Simulating...")
-    res = simulate(best_vs, dt, d0, theta_deg, ghi, params)
+    res = simulate(best_vs, dt, d0, theta_fn, ghi_fn, params)
 
     _print_results(res, best_vs, params)
 
@@ -91,21 +102,28 @@ def run_raceday_scenario(config: SimConfig) -> SimResult:
 
     print(f"Loading GPX: {gpx_path.name}")
     pts = load_gpx_points(str(gpx_path), AscTrack.NashvilleToPaducah)
-    dist_m, theta_deg = compute_segments(pts)
-    N_gps = len(pts)
+    dist_m, theta_deg_arr = compute_segments(pts)
 
     # Get GHI data
     if config.use_solcast and SOLCAST_AVAILABLE and config.solcast_api_key:
         print("Fetching GHI data from Solcast...")
         # TODO
+        ghi_arr = np.linspace(700, 900, len(pts))
     else:
         print("Using mock GHI data (Solcast disabled or unavailable)")
-        ghi = np.linspace(700, 900, N_gps)
+        ghi_arr = np.linspace(700, 900, len(pts))
+
+    # Build position-based lookup functions from GPS data
+    def theta_fn(d):
+        return np.interp(d, dist_m, theta_deg_arr)
+
+    def ghi_fn(d):
+        return np.interp(d, dist_m, ghi_arr)
 
     # Setup simulation
     dt = config.dt
-    N_steps = N_gps
-    horizon = N_steps * dt
+    horizon = config.horizon
+    N_steps = int(horizon / dt)
 
     # Use default vehicle params from VehicleParams dataclass
     params = VehicleParams()
@@ -121,12 +139,14 @@ def run_raceday_scenario(config: SimConfig) -> SimResult:
         min_soc=config.min_soc,
     )
 
-    print("Optimizing velocity profile (may take a while)...")
-    best_vs, best_obj = SLSQP_velocity(opt_cfg, theta_deg, ghi, params)
+    print(
+        f"Optimizing velocity profile ({N_steps} steps, {horizon / 3600:.1f}h horizon)..."
+    )
+    best_vs, best_obj = SLSQP_velocity(opt_cfg, theta_fn, ghi_fn, params)
     print(f"Optimization complete. Objective: {best_obj:.2f}")
 
     print("Simulating...")
-    res = simulate(best_vs, dt, 0.0, theta_deg, ghi, params)
+    res = simulate(best_vs, dt, 0.0, theta_fn, ghi_fn, params)
 
     _print_results(res, best_vs, params)
 

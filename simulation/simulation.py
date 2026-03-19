@@ -6,7 +6,7 @@ Group: Strategy_XVI
 """
 
 from dataclasses import dataclass
-from typing import NamedTuple, Dict
+from typing import NamedTuple, Dict, Callable
 import numpy as np
 
 # ! Some Values NEED to be verified for vehicle params
@@ -68,8 +68,8 @@ def simulate(
     v: np.ndarray,
     dt: float,
     d0: float,
-    theta_deg: np.ndarray,  # TODO DELETE
-    ghi: np.ndarray,  # TODO DELETE
+    theta_fn: Callable[[np.ndarray], np.ndarray],
+    ghi_fn: Callable[[np.ndarray], np.ndarray],
     params: VehicleParams = VehicleParams(),
 ) -> SimResult:
     """Vectorized simulation over a fixed horizon.
@@ -78,9 +78,8 @@ def simulate(
         v: Speed profile (m/s).
         dt: Timestep (s).
         d0: Starting distance (m).
-        theta_deg: Road angle (from gpx files).
-        ghi: Global Horizontal Irradiance, we assume the panels lay flat
-            (room for improvement here).
+        theta_fn: Callable that returns road grade (deg) at given distance(s).
+        ghi_fn: Callable that returns GHI (W/m^2) at given distance(s).
         params: Vehicle parameters (see dataclass).
 
     Returns:
@@ -94,6 +93,10 @@ def simulate(
     d = np.empty(N + 1, dtype=float)
     d[0] = d0
     d[1:] = d0 + np.cumsum(v * dt)
+
+    # Query terrain and irradiance at start-of-step positions
+    theta_deg = theta_fn(d[:-1])
+    ghi = ghi_fn(d[:-1])
 
     theta_rad = np.deg2rad(theta_deg)
 

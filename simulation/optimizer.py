@@ -8,7 +8,7 @@ Group: Strategy_XVI
 from __future__ import annotations
 import numpy as np
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Tuple, Callable
 from scipy.optimize import minimize
 from simulation import simulate, VehicleParams
 
@@ -19,7 +19,7 @@ class OptimizeConfig:
 
     # fmt: off
     dt: float = 10.0            # Time step (s)
-    horizon: int = 600          # How many seconds we want to simulate (s)
+    horizon: float = 28800.0    # How many seconds we want to simulate (s) (8 hours = 28800s)
     d0: float = 0.0             # Starting distance (m)
     vmin: float = 8.9           # Minimum allowed speed (m/s), default value as per ASC 2026 regs
     vmax: float = 29.0          # Maximum allowed speed (m/s), default value as per ASC 2026 regs
@@ -33,8 +33,8 @@ def objective(
     vs: np.ndarray,
     dt: float,
     d0: float,
-    theta_deg: np.ndarray,
-    ghi: np.ndarray,
+    theta_fn: Callable,
+    ghi_fn: Callable,
     params: VehicleParams,
     cfg: OptimizeConfig,
 ) -> float:
@@ -42,14 +42,14 @@ def objective(
 
     Args:
         vs: The speed profile (m/s).
-        theta_deg: Road angles (from gpx files).
-        ghi: Global horizontal index (w/m^2).
+        theta_fn: Callable returning road grade (deg) at given distance(s).
+        ghi_fn: Callable returning GHI (W/m^2) at given distance(s).
         params: For simulation.
 
     Returns:
         Negative distance (so minimizing -> maximize distance).
     """
-    res = simulate(vs, dt, d0, theta_deg, ghi, params)
+    res = simulate(vs, dt, d0, theta_fn, ghi_fn, params)
     min_reserve = cfg.min_soc * params.bat_max_energy
     margin = np.min(res.traces["Ebat_raw_J"][1:] - min_reserve)
 
@@ -60,28 +60,19 @@ def objective(
 
 
 def SLSQP_velocity(
-    cfg: OptimizeConfig, theta_deg: np.ndarray, ghi: np.ndarray, params: VehicleParams
+    cfg: OptimizeConfig, theta_fn: Callable, ghi_fn: Callable, params: VehicleParams
 ) -> Tuple[np.ndarray, float]:
-    """Runs an SLSQP optimization on given slope and irradiance arrays.
+    """Runs an SLSQP optimization on given slope and irradiance callables.
 
     Args:
         cfg: Optimizer configuration data (see OptimizeConfig dataclass).
-        theta_deg: Numpy array of elevation in degrees.
-        ghi: Global horizontal index.
+        theta_fn: Callable returning road grade (deg) at given distance(s).
+        ghi_fn: Callable returning GHI (W/m^2) at given distance(s).
 
     Returns:
         Best velocity array and objective value.
     """
-    theta_deg = np.asarray(theta_deg, dtype=float)
-    ghi = np.asarray(ghi, dtype=float)
     N = int(cfg.horizon / cfg.dt)
-
-    N = len(theta_deg)
-    if len(ghi) != N:
-        raise ValueError("ghi and theta_deg must have same length")
-
-    if abs(cfg.horizon - N * cfg.dt) > 1e-9:
-        print(f"Warning: horizon ({cfg.horizon}) != N*dt ({N * cfg.dt})")
 
     vs0 = np.full(N, cfg.vmin)
 
@@ -92,7 +83,7 @@ def SLSQP_velocity(
 
     def soc_constraints(vs):
         """Return SOC - reserve for every timestep; each must be >= 0."""
-        res = simulate(vs, cfg.dt, cfg.d0, theta_deg, ghi, params)
+        res = simulate(vs, cfg.dt, cfg.d0, theta_fn, ghi_fn, params)
         return res.traces["Ebat_raw_J"][1:] - min_reserve
 
     constraints = [{"type": "ineq", "fun": soc_constraints}]
@@ -101,7 +92,7 @@ def SLSQP_velocity(
 
     def callback(xk):
         """Called by scipy's optimize function. Shows traces of each itteration"""
-        res = simulate(xk, cfg.dt, cfg.d0, theta_deg, ghi, params)
+        res = simulate(xk, cfg.dt, cfg.d0, theta_fn, ghi_fn, params)
         obj = -res.final_distance_m
         soc_pct = res.final_soc_J / params.bat_max_energy * 100
         iteration_log.append(
@@ -125,7 +116,7 @@ def SLSQP_velocity(
     result = minimize(
         objective,
         vs0,
-        args=(cfg.dt, cfg.d0, theta_deg, ghi, params, cfg),
+        args=(cfg.dt, cfg.d0, theta_fn, ghi_fn, params, cfg),
         method=cfg.method,
         bounds=bounds,
         constraints=constraints,
@@ -141,14 +132,14 @@ def SLSQP_velocity(
 
 
 def exhaustive_search_velocity(
-    cfg: OptimizeConfig, theta_deg: np.ndarray, ghi: np.ndarray, params: VehicleParams
+    cfg: OptimizeConfig, theta_fn: Callable, ghi_fn: Callable, params: VehicleParams
 ) -> Tuple[np.ndarray, float]:
     """Perform an exhaustive search (try every single velocity vector) to find optimized velocity
 
     Args:
         cfg: Optimizer configuration data (see OptimizeConfig dataclass).
-        theta_deg: Numpy array of elevation in degrees.
-        ghi: Global horizontal index.
+        theta_fn: Callable returning road grade (deg) at given distance(s).
+        ghi_fn: Callable returning GHI (W/m^2) at given distance(s).
 
     Returns:
         Best velocity array and objective value.
