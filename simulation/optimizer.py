@@ -20,7 +20,7 @@ class OptimizeConfig:
 
     # fmt: off
     dt: float = 10.0            # Time step (s)
-    horizon: int = 100          # How many seconds we want to simulate (s)
+    horizon: int = 28800        # How many seconds we want to simulate (s)
     d0: float = 0.0             # Starting distance (m)
     vmin: float = 8.9           # Minimum allowed speed (m/s), default value as per ASC 2026 regs
     vmax: float = 29.0          # Maximum allowed speed (m/s), default value as per ASC 2026 regs
@@ -136,7 +136,9 @@ def exhaustive_search_velocity(
     cfg: OptimizeConfig, theta_fn: Callable, ghi_fn: Callable, params: VehicleParams
 ) -> Tuple[np.ndarray, float]:
     """Perform an exhaustive search (try every single velocity vector) to find optimized velocity
-
+    
+    Mainly used for benchmarking, hence small N
+    
     Args:
         cfg: Optimizer configuration data (see OptimizeConfig dataclass).
         theta_fn: Callable that takes an array of indices or distances and returns road grade (deg) array.
@@ -149,6 +151,7 @@ def exhaustive_search_velocity(
 
     # N = int(cfg.horizon / cfg.dt)
     N = 10  # For testing, set to 10. Change back to above for full search (warning: very slow!)
+    
     v_grid = np.linspace(cfg.vmin, cfg.vmax, num=4)
 
     best_vs = None
@@ -164,12 +167,17 @@ def exhaustive_search_velocity(
         res = simulate(vs, cfg.dt, cfg.d0, theta_fn, ghi_fn, params)
         margin = np.min(res.traces["Ebat_raw_J"][1:] - min_reserve)
         if margin < 0:
-            continue  # Battery died, skip this profile
+            continue  # Battery below SOC, skip this profile
         obj = -res.final_distance_m
         if obj < best_obj:
             best_obj = obj
             best_vs = vs.copy()
-            print(f"New best: dist={res.final_distance_m / 1000:.2f} km | vs={vs}")
+            formatted_vs = "[" + ", ".join(f"{float(v):.2f}" for v in vs) + "]"
+            print(
+                f"New best: dist={res.final_distance_m / 1000:.2f} km | "
+                f"vs={formatted_vs}"
+            )
+
 
     if best_vs is None:
         best_vs = np.full(N, cfg.vmin)
