@@ -10,12 +10,11 @@ from __future__ import annotations
 from typing import Tuple, Dict, Any
 import numpy as np
 import csv
-import os
+
 try:
     import yaml
 except ImportError:
     yaml = None
-
 
 
 def load_mock_csv(path: str) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
@@ -41,6 +40,7 @@ def load_mock_csv(path: str) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
     theta_deg = np.array([float(r["theta_deg"]) for r in rows], dtype=float)
     meta = {"dt": dt, "d0": d0}
     return theta_deg, ghi, meta
+
 
 def load_mock_yaml(path: str) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
     """Load a YAML mock profile for testing (legacy)."""

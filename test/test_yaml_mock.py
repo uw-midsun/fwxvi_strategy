@@ -5,9 +5,8 @@ import numpy as np
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from simulation.mock_data import load_mock_yaml, load_mock_csv
+from simulation.mock_data import load_mock_csv
 from simulation.simulation import simulate, VehicleParams
-
 
 
 def test_mock_csv_runs_and_outputs():
@@ -36,9 +35,9 @@ def test_mock_csv_runs_and_outputs():
     res = simulate(v, dt, d0, theta_fn, ghi_fn, params)
 
     # Print useful simulation results
-    print(f"\n{'='*60}")
-    print(f"Mock CSV Test Results")
-    print(f"{'='*60}")
+    print(f"\n{'=' * 60}")
+    print("Mock CSV Test Results")
+    print(f"{'=' * 60}")
     print(f"Simulation timestep:     {dt:.1f} s")
     print(f"Number of steps:         {theta_deg.size}")
     print(f"Average speed:           {np.mean(v):.2f} m/s")

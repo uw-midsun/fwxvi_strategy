@@ -152,10 +152,12 @@ def exhaustive_search_velocity(
     v_grid = np.linspace(cfg.vmin, cfg.vmax, num=4)
 
     best_vs = None
-    best_obj = float('inf')
+    best_obj = float("inf")
     min_reserve = cfg.min_soc * params.bat_max_energy
 
-    print(f"Starting exhaustive search for N={N}. Total permutations: {len(v_grid)**N}")
+    print(
+        f"Starting exhaustive search for N={N}. Total permutations: {len(v_grid) ** N}"
+    )
 
     for vs_tuple in itertools.product(v_grid, repeat=N):
         vs = np.array(vs_tuple)

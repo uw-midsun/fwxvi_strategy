@@ -13,7 +13,6 @@ from config import SimConfig
 from scenarios import run_test_scenario, run_raceday_scenario
 
 
-
 def list_test_files() -> list:
     """List available test files (YAML and CSV)."""
     test_dir = Path(__file__).parent.parent / "test"
@@ -85,7 +84,7 @@ def main_menu() -> None:
         elif choice == "1":
             configure_menu(config)
 
-        elif choice == '2':
+        elif choice == "2":
             test_files = list_test_files()
             if not test_files:
                 print("No test files found in test/ directory.")

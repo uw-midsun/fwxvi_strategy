@@ -31,7 +31,7 @@ def run_test_scenario(test_path: str, config: SimConfig) -> SimResult:
         Simulation result.
     """
     print(f"\nLoading test scenario: {test_path}")
-    if test_path.lower().endswith('.csv'):
+    if test_path.lower().endswith(".csv"):
         theta_deg_arr, ghi_arr, meta = load_mock_csv(test_path)
     else:
         theta_deg_arr, ghi_arr, meta = load_mock_yaml(test_path)
@@ -80,7 +80,9 @@ def run_test_scenario(test_path: str, config: SimConfig) -> SimResult:
         best_vs, best_obj = SLSQP_velocity(opt_cfg, theta_fn, ghi_fn, params)
     elif method == "exhaustive":
         print("Optimizing velocity profile using Exhaustive Search...")
-        best_vs, best_obj = exhaustive_search_velocity(opt_cfg, theta_fn, ghi_fn, params)
+        best_vs, best_obj = exhaustive_search_velocity(
+            opt_cfg, theta_fn, ghi_fn, params
+        )
 
     print(f"Optimization complete. Objective: {best_obj:.2f}")
     print("Simulating...")
@@ -169,8 +171,12 @@ def run_raceday_scenario(config: SimConfig) -> SimResult:
         print("Optimizing velocity profile using SLSQP (may take a while)...")
         best_vs, best_obj = SLSQP_velocity(opt_cfg, theta_fn, ghi_fn, params)
     else:
-        print("Optimizing velocity profile using Exhaustive Search (may take a while)...")
-        best_vs, best_obj = exhaustive_search_velocity(opt_cfg, theta_fn, ghi_fn, params)
+        print(
+            "Optimizing velocity profile using Exhaustive Search (may take a while)..."
+        )
+        best_vs, best_obj = exhaustive_search_velocity(
+            opt_cfg, theta_fn, ghi_fn, params
+        )
 
     print(f"Optimization complete. Objective: {best_obj:.2f}")
     print("Simulating...")
