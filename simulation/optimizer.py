@@ -20,7 +20,7 @@ class OptimizeConfig:
 
     # fmt: off
     dt: float = 10.0            # Time step (s)
-    horizon: float = 28800.0    # How many seconds we want to simulate (s) (8 hours = 28800s)
+    horizon: int = 100          # How many seconds we want to simulate (s)
     d0: float = 0.0             # Starting distance (m)
     vmin: float = 8.9           # Minimum allowed speed (m/s), default value as per ASC 2026 regs
     vmax: float = 29.0          # Maximum allowed speed (m/s), default value as per ASC 2026 regs
@@ -139,23 +139,16 @@ def exhaustive_search_velocity(
 
     Args:
         cfg: Optimizer configuration data (see OptimizeConfig dataclass).
-        theta_fn: Callable returning road grade (deg) at given distance(s).
-        ghi_fn: Callable returning GHI (W/m^2) at given distance(s).
+        theta_fn: Callable that takes an array of indices or distances and returns road grade (deg) array.
+        ghi_fn: Callable that takes an array of indices or distances and returns GHI (W/m^2) array.
+        params: Vehicle parameters.
 
     Returns:
         Best velocity array and objective value.
     """
 
-    theta_deg = np.asarray(theta_deg, dtype=float)
-    ghi = np.asarray(ghi, dtype=float)
-    N = len(theta_deg)
-    
-    if len(ghi) != N:
-        raise ValueError("ghi and theta_deg must have same length")
-
-    # Discretize the velocity space in deal scenario
-    # v_grid = np.linspace(cfg.vmin, cfg.vmax, num=8)
-    # Change num=8 to num=3 just for testing purposes
+    # N = int(cfg.horizon / cfg.dt)
+    N = 10  # For testing, set to 10. Change back to above for full search (warning: very slow!)
     v_grid = np.linspace(cfg.vmin, cfg.vmax, num=4)
 
     best_vs = None
@@ -164,21 +157,13 @@ def exhaustive_search_velocity(
 
     print(f"Starting exhaustive search for N={N}. Total permutations: {len(v_grid)**N}")
 
-    # itertools.product generates every possible combination of v_grid of length N
     for vs_tuple in itertools.product(v_grid, repeat=N):
         vs = np.array(vs_tuple)
-        
-        # Simulate this specific velocity profile
-        res = simulate(vs, cfg.dt, cfg.d0, theta_deg, ghi, params)
-        
-        # Check SOC constraint
+        res = simulate(vs, cfg.dt, cfg.d0, theta_fn, ghi_fn, params)
         margin = np.min(res.traces["Ebat_raw_J"][1:] - min_reserve)
         if margin < 0:
             continue  # Battery died, skip this profile
-            
         obj = -res.final_distance_m
-
-        # If it's better, save it
         if obj < best_obj:
             best_obj = obj
             best_vs = vs.copy()
