@@ -15,12 +15,13 @@ class SimConfig:
 
     # fmt: off
     # Optimization parameters
-    dt: float = 1800.0      # Timestep
-    vmin: float = 8.9       # Minimum speed
-    vmax: float = 30.0      # Maximum speed
-    method: str = "SLSQP"   # Optimization method
-    max_iter: int = 2000    # Maximum iterations
-    min_soc: float = 0.2    # Energy penalty weight
+    dt: float = 1800.0          # Timestep
+    horizon: float = 28800.0    # Driving time per day (s), default 8 hours
+    vmin: float = 8.9           # Minimum speed
+    vmax: float = 30.0          # Maximum speed
+    method: str = "SLSQP"       # Optimization method
+    max_iter: int = 2000        # Maximum iterations
+    min_soc: float = 0.2        # Energy penalty weight
 
     # Data sources
     use_solcast: bool = False              # Use Solcast API for GHI data
@@ -32,6 +33,7 @@ class SimConfig:
         """Display all configuration parameters with indices."""
         params = [
             ("dt", self.dt, "s", "Timestep"),
+            ("horizon", self.horizon, "s", "Driving time per day"),
             ("vmin", self.vmin, "m/s", "Minimum speed"),
             ("vmax", self.vmax, "m/s", "Maximum speed"),
             ("method", self.method, "", "Optimization method"),

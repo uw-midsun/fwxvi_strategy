@@ -20,7 +20,19 @@ def test_mock_yaml_runs_and_outputs():
     # create a trivial constant speed profile
     v = np.full(theta_deg.size, 15.0)
 
-    res = simulate(v, dt, d0, theta_deg, ghi, params)
+    # Build position-based lookup functions from test arrays
+    N_steps = theta_deg.size
+    avg_v = 15.0
+    total_dist = N_steps * dt * avg_v
+    dist_points = np.linspace(0, total_dist, N_steps)
+
+    def theta_fn(d):
+        return np.interp(d, dist_points, theta_deg)
+
+    def ghi_fn(d):
+        return np.interp(d, dist_points, ghi)
+
+    res = simulate(v, dt, d0, theta_fn, ghi_fn, params)
 
     # Print useful simulation results
     print(f"\n{'=' * 60}")

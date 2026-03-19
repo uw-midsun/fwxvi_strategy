@@ -29,18 +29,19 @@ def configure_menu(config: SimConfig) -> None:
     """
     param_map = {
         1: "dt",
-        2: "vmin",
-        3: "vmax",
-        4: "method",
-        5: "max_iter",
-        6: "min_soc",
-        7: "use_solcast",
-        8: "gpx_file",
+        2: "horizon",
+        3: "vmin",
+        4: "vmax",
+        5: "method",
+        6: "max_iter",
+        7: "min_soc",
+        8: "use_solcast",
+        9: "gpx_file",
     }
 
     while True:
         config.display()
-        print("Options: [1-8] Change parameter | [r] Run | [q] Quit")
+        print("Options: [1-9] Change parameter | [r] Run | [q] Quit")
         choice = input("Select: ").strip().lower()
 
         if choice == "q":
