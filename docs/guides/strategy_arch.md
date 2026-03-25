@@ -185,7 +185,7 @@ Now there are several ways of optimizing for our problem, we use a gradient base
 
 
 # Note on Benchmarking
-In the future we will be benchmarking our optimization algorithms. To do this, we will evaluate them on smaller problem instances and compare their results to an [exhaustic search](https://en.wikipedia.org/wiki/Brute-force_search) (Tries every single possible vector). This allows us to determine whether the optimizer converges to the correct solution and how many iterations it requires to reach it.
+In the future we will be benchmarking our optimization algorithms. To do this, we will evaluate them on smaller problem instances and compare their results to an [exhaustive search](https://en.wikipedia.org/wiki/Brute-force_search) (Tries every single possible vector). This allows us to determine whether the optimizer converges to the correct solution and how many iterations it requires to reach it.
 
 To bench mark our simulation models, the plan is to get data from the car about speeds driven at versus SOC lost, and tweaking our model until we get similar results to ones observed.
 
