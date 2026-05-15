@@ -19,7 +19,7 @@ def generate_plots(
     soc_wh: np.ndarray,
     min_soc: float,
     bat_max_wh: float = None,
-) -> None:
+) -> plt.Figure:
     """Generates speed and battery plots from simulation results.
 
     Args:
@@ -59,4 +59,4 @@ def generate_plots(
     ax[1].grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.show()
+    return fig
