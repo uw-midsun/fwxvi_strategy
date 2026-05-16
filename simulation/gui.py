@@ -42,7 +42,6 @@ from matplotlib.figure import Figure
 from config import SimConfig
 from simulation import VehicleParams, wh_from_joules
 from scenarios import run_test_scenario, run_raceday_scenario
-from plots import generate_plots
 
 # Theme definitions
 _DARK_PLOT = {
@@ -285,7 +284,6 @@ class MainWindow(QMainWindow):
         splitter.setSizes([340, 760])
 
         root_layout.addWidget(splitter)
-
 
     # Config panel
     def _build_config_group(self) -> QGroupBox:
@@ -554,9 +552,7 @@ class MainWindow(QMainWindow):
         self.iter_text.append(msg)
         m = re.search(r"Iter\s+(\d+)", msg)
         if m:
-            self.iter_label.setText(
-                f"Iter {int(m.group(1))} / {self.config.max_iter}"
-            )
+            self.iter_label.setText(f"Iter {int(m.group(1))} / {self.config.max_iter}")
         if self.log_tabs.currentIndex() != 1:
             self.log_tabs.setCurrentIndex(1)
 
@@ -592,8 +588,12 @@ class MainWindow(QMainWindow):
         ax2.set_facecolor(colors["ax_bg"])
         ax2.set_title("Battery State of Charge", color=colors["text"])
         ax2.plot(
-            dist_km, soc_wh, marker="o", markersize=4,
-            label="Battery SOC", color=colors["soc_line"],
+            dist_km,
+            soc_wh,
+            marker="o",
+            markersize=4,
+            label="Battery SOC",
+            color=colors["soc_line"],
         )
         threshold_wh = self.config.min_soc * bat_max_wh
         ax2.axhline(
