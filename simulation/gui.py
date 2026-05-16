@@ -603,7 +603,7 @@ class MainWindow(QMainWindow):
             linewidth=1.5,
             label=f"{self.config.min_soc * 100:.0f}% minimum",
         )
-        legend = ax2.legend(facecolor=colors["ax_bg"], labelcolor=colors["text"])
+        ax2.legend(facecolor=colors["ax_bg"], labelcolor=colors["text"])
         ax2.set_ylabel("Battery (Wh)", color=colors["text"])
         ax2.set_xlabel("Distance (km)", color=colors["text"])
         ax2.tick_params(colors=colors["text"])
