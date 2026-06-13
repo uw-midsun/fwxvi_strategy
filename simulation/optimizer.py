@@ -61,7 +61,11 @@ def objective(
 
 
 def SLSQP_velocity(
-    cfg: OptimizeConfig, theta_fn: Callable, ghi_fn: Callable, params: VehicleParams
+    cfg: OptimizeConfig,
+    theta_fn: Callable,
+    ghi_fn: Callable,
+    params: VehicleParams,
+    iter_log_fn: Callable[[str], None] = None,
 ) -> Tuple[np.ndarray, float]:
     """Runs an SLSQP optimization on given slope and irradiance callables.
 
@@ -69,51 +73,58 @@ def SLSQP_velocity(
         cfg: Optimizer configuration data (see OptimizeConfig dataclass).
         theta_fn: Callable returning road grade (deg) at given distance(s).
         ghi_fn: Callable returning GHI (W/m^2) at given distance(s).
+        iter_log_fn: Optional callback for per-iteration log messages.
 
     Returns:
         Best velocity array and objective value.
     """
+    iter_log = iter_log_fn or print
     N = int(cfg.horizon / cfg.dt)
 
     vs0 = np.full(N, cfg.vmin)
 
     bounds = [(cfg.vmin, cfg.vmax)] * N
 
-    # Per timestep SOC >= cfg.min_soc constraints
     min_reserve = cfg.min_soc * params.bat_max_energy  # In Joules
 
     def soc_constraints(vs):
-        """Return SOC - reserve for every timestep; each must be >= 0."""
         res = simulate(vs, cfg.dt, cfg.d0, theta_fn, ghi_fn, params)
         return res.traces["Ebat_raw_J"][1:] - min_reserve
 
     constraints = [{"type": "ineq", "fun": soc_constraints}]
 
     iteration_log = []
+    best_feasible = {"vs": None, "obj": float("inf")}
 
     def callback(xk):
-        """Called by scipy's optimize function. Shows traces of each itteration"""
+        """Called by scipy's optimize function. Shows traces of each iteration."""
         res = simulate(xk, cfg.dt, cfg.d0, theta_fn, ghi_fn, params)
         obj = -res.final_distance_m
         soc_pct = res.final_soc_J / params.bat_max_energy * 100
+        dist_km = res.final_distance_m / 1000
+
+        margin = np.min(res.traces["Ebat_raw_J"][1:]) - min_reserve
+        if margin >= 0 and obj < best_feasible["obj"]:
+            best_feasible["obj"] = obj
+            best_feasible["vs"] = xk.copy()
+
         iteration_log.append(
             {
                 "iter": len(iteration_log),
                 "objective": obj,
-                "distance_km": res.final_distance_m / 1000,
+                "distance_km": dist_km,
                 "final_soc_pct": soc_pct,
                 "mean_speed": float(np.mean(xk)),
             }
         )
         entry = iteration_log[-1]
-        print(
+        iter_log(
             f"  Iter {entry['iter']:4d} | "
             f"dist={entry['distance_km']:.2f} km | "
             f"SOC={entry['final_soc_pct']:.1f}% | "
             f"avg_v={entry['mean_speed']:.2f} m/s"
         )
 
-    # Pass cfg through to the objective so it can access tunable weights.
     result = minimize(
         objective,
         vs0,
@@ -122,18 +133,28 @@ def SLSQP_velocity(
         bounds=bounds,
         constraints=constraints,
         callback=callback,
-        options={"maxiter": cfg.max_iter, "disp": True},
+        options={"maxiter": cfg.max_iter, "disp": False},
     )
-    if not result.success:
-        print(f"Warning: Optimization did not converge. Message: {result.message}")
 
-    best_vs = result.x
-    best_obj = result.fun
+    if result.success:
+        best_vs = result.x
+        best_obj = result.fun
+    elif best_feasible["vs"] is not None:
+        best_vs = best_feasible["vs"]
+        best_obj = best_feasible["obj"]
+    else:
+        best_vs = result.x
+        best_obj = result.fun
+        iter_log(f"Warning: Optimization did not converge. Message: {result.message}")
     return best_vs, best_obj
 
 
 def exhaustive_search_velocity(
-    cfg: OptimizeConfig, theta_fn: Callable, ghi_fn: Callable, params: VehicleParams
+    cfg: OptimizeConfig,
+    theta_fn: Callable,
+    ghi_fn: Callable,
+    params: VehicleParams,
+    iter_log_fn: Callable[[str], None] = None,
 ) -> Tuple[np.ndarray, float]:
     """Perform an exhaustive search (try every single velocity vector) to find optimized velocity
 
@@ -144,10 +165,12 @@ def exhaustive_search_velocity(
         theta_fn: Callable that takes an array of indices or distances and returns road grade (deg) array.
         ghi_fn: Callable that takes an array of indices or distances and returns GHI (W/m^2) array.
         params: Vehicle parameters.
+        iter_log_fn: Optional callback for per-iteration log messages.
 
     Returns:
         Best velocity array and objective value.
     """
+    iter_log = iter_log_fn or print
 
     # N = int(cfg.horizon / cfg.dt)
     N = 10  # For testing, set to 10. Change back to above for full search (warning: very slow!)
@@ -158,7 +181,7 @@ def exhaustive_search_velocity(
     best_obj = float("inf")
     min_reserve = cfg.min_soc * params.bat_max_energy
 
-    print(
+    iter_log(
         f"Starting exhaustive search for N={N}. Total permutations: {len(v_grid) ** N}"
     )
 
@@ -173,7 +196,7 @@ def exhaustive_search_velocity(
             best_obj = obj
             best_vs = vs.copy()
             formatted_vs = "[" + ", ".join(f"{float(v):.2f}" for v in vs) + "]"
-            print(
+            iter_log(
                 f"New best: dist={res.final_distance_m / 1000:.2f} km | "
                 f"vs={formatted_vs}"
             )
