@@ -7,7 +7,7 @@ Group: Strategy_XVI
 
 from __future__ import annotations
 
-from typing import Tuple, Dict, Any
+from typing import Tuple
 import numpy as np
 import csv
 

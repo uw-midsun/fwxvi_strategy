@@ -16,7 +16,6 @@ from optimizer import SLSQP_velocity, exhaustive_search_velocity, OptimizeConfig
 from map_visualization import load_gpx_points, compute_segments, AscTrack
 from mock_data import load_mock_yaml
 from config import SimConfig
-from plots import generate_plots
 
 SOLCAST_AVAILABLE = False
 
