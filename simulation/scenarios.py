@@ -8,6 +8,7 @@ Group: Strategy_XVI
 from __future__ import annotations
 import numpy as np
 from pathlib import Path
+from typing import Callable, Optional
 from mock_data import load_mock_csv
 
 from simulation import simulate, VehicleParams, wh_from_joules, SimResult
@@ -23,8 +24,8 @@ def run_test_scenario(
     test_path: str,
     config: SimConfig,
     method: str = "SLSQP",
-    log_fn=None,
-    iter_log_fn=None,
+    log_fn: Optional[Callable[[str], None]] = None,
+    iter_log_fn: Optional[Callable[[str], None]] = None,
 ) -> SimResult:
     """Run a test scenario using mock YAML or CSV data.
 
@@ -88,7 +89,10 @@ def run_test_scenario(
 
 
 def run_raceday_scenario(
-    config: SimConfig, method: str = "SLSQP", log_fn=None, iter_log_fn=None
+    config: SimConfig,
+    method: str = "SLSQP",
+    log_fn: Optional[Callable[[str], None]] = None,
+    iter_log_fn: Optional[Callable[[str], None]] = None,
 ) -> SimResult:
     """Run a race day scenario using GPX data and optionally Solcast.
 
